@@ -123,10 +123,10 @@ module Sisvis
   end
   class System
     attr_reader :g
-    def initialize(g)
+    def initialize(g, hints = {splines: 'line'})
       @registry = Registry.new
       @g = g
-      g[splines: 'line']
+      g[hints]
     end
     include Creators
     def node
