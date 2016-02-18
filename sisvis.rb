@@ -18,7 +18,6 @@ module Sisvis
       node[:URL] = url unless node.nil?
     end
     def rollup?
-      puts "#{name}#rollup? #{@rollup}"
       @rollup
     end
     def rollup!
@@ -58,17 +57,16 @@ module Sisvis
                       other.entry_process
                     end
 
-      rollup_to = false
       while (other_thing.rollup? && other_thing.parent.rollup?) do
-        rollup_to = true
         other_thing = other_thing.parent
       end
 
       from = self
       while (from.rollup? && from.parent.rollup?) do
-        return if rollup_to # pointing from rolled up node to rolled up node i.e will point to self
         from = from.parent
       end
+
+      return if from == other_thing
 
       edge = g.add_edges from.id, other_thing.id
       edge[:label] = options[:name] if options.has_key?(:name)
