@@ -14,6 +14,9 @@ module Sisvis
     def parent_node
       parent.node
     end
+    def doclink(url)
+      node[:URL] = url
+    end
   end
 
   class Thing
@@ -182,9 +185,6 @@ module Sisvis
     def calls(*callees)
       points_to *callees
     end
-    def doclink(url)
-      node[:URL] = url
-    end
   end
   class External < Thing
     def initialize(parent, name)
@@ -194,6 +194,7 @@ module Sisvis
   class LoadBalancer < Thing
     def initialize(parent, name)
       super parent, name, color: '#ff6666', style: 'filled'
+      doclink 'https://mycloud.rackspace.com/cloud/553357/load_balancers'
     end
   end
 
