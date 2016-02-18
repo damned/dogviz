@@ -73,16 +73,49 @@ module Sisvis
       @parent = parent
       @name = name
       @id = create_id(name, parent)
-      @node = parent_node.add_graph('cluster_' + id, options)
+
+      prefix = cluster_prefix(options)
+      @node = parent_node.add_graph(prefix + id, options)
+
       node[:label] = name
       parent.register name, self
     end
+
     def register(name, thing)
       @registry.register name, thing
       parent.register name, thing
     end
     def find(name)
       @registry.lookup name
+    end
+
+    private
+
+    def cluster_prefix(options)
+      is_cluster = true
+      if options.has_key? :cluster
+        is_cluster = options[:cluster]
+        options.delete :cluster
+      end
+      cluster_prefix = (is_cluster ? 'cluster_' : '')
+    end
+
+  end
+  module Creators
+    def box(name)
+      Box.new(self, name)
+    end
+    def thing(name)
+      Thing.new self, name
+    end
+    def process(name)
+      Process.new self, name
+    end
+    def external(name)
+      External.new self, name
+    end
+    def grouping(name, options = {})
+      Grouping.new self, name, options
     end
   end
   class System
@@ -92,18 +125,7 @@ module Sisvis
       @g = g
       g[splines: 'line']
     end
-    def box(name)
-      Box.new(self, name)
-    end
-    def thing(name)
-      Thing.new self, name
-    end
-    def external(name)
-      External.new self, name
-    end
-    def grouping(name, options={})
-      Grouping.new self, name, options
-    end
+    include Creators
     def node
       g
     end
@@ -131,17 +153,13 @@ module Sisvis
     def initialize(parent, name)
       super parent, name
     end
-    def process(name)
-      Process.new self, name
-    end
+    include Creators
   end
   class Grouping < Container
-    def external(name)
-      External.new self, name
+    def initialize(parent, name, options)
+      super parent, name, options.merge(cluster: false)
     end
-    def process(name)
-      Process.new self, name
-    end
+    include Creators
   end
   class Process < Thing
     def initialize(parent, name)
