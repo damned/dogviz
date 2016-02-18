@@ -189,4 +189,22 @@ module Sisvis
       super parent, name, color: 'lightyellow', style: 'filled'
     end
   end
+
+  class Repo
+    def initialize(name)
+      @name = name
+    end
+
+    def url
+      "https://github.com/www-thoughtworks-com/#{@name}"
+    end
+
+    def source(path)
+      "#{url}/blob/master/#{path}"
+    end
+
+    def to_s
+      url
+    end
+  end
 end
