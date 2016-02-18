@@ -105,6 +105,9 @@ module Sisvis
     def box(name)
       Box.new(self, name)
     end
+    def pipeline(name)
+      Pipeline.new(self, name)
+    end
     def thing(name)
       Thing.new self, name
     end
@@ -150,9 +153,9 @@ module Sisvis
     attr_writer :entry_process
   end
   class Service < Container
-    def initialize(parent, name)
-      super parent, name
-    end
+    include Creators
+  end
+  class Pipeline < Container
     include Creators
   end
   class Grouping < Container
