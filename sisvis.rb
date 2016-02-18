@@ -111,6 +111,9 @@ module Sisvis
     def thing(name)
       Thing.new self, name
     end
+    def lb(name)
+      LoadBalancer.new self, name
+    end
     def process(name)
       Process.new self, name
     end
@@ -138,7 +141,7 @@ module Sisvis
   end
   class Box < Container
     def initialize(parent, name)
-      super parent, name
+      super parent, name, {style: 'filled', color: '#ffaaaa'}
     end
     def service(name)
       Service.new self, name
@@ -157,8 +160,7 @@ module Sisvis
   end
   class Pipeline < Container
     def initialize(parent, name, options={})
-      super parent, name, options
-
+      super parent, name, options.merge(color: '#c8f8c8', style: 'filled')
     end
     include Creators
     def stage(name)
@@ -187,6 +189,11 @@ module Sisvis
   class External < Thing
     def initialize(parent, name)
       super parent, name, color: 'lightyellow', style: 'filled'
+    end
+  end
+  class LoadBalancer < Thing
+    def initialize(parent, name)
+      super parent, name, color: '#ff6666', style: 'filled'
     end
   end
 
