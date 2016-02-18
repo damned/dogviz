@@ -156,7 +156,16 @@ module Sisvis
     include Creators
   end
   class Pipeline < Container
+    def initialize(parent, name, options={})
+      super parent, name, options
+
+    end
     include Creators
+    def stage(name)
+      stage = thing name
+      stage.node[:URL]="http://go/tw.#{name}"
+      stage
+    end
   end
   class Grouping < Container
     def initialize(parent, name, options)
@@ -170,6 +179,9 @@ module Sisvis
     end
     def calls(*callees)
       points_to *callees
+    end
+    def doclink(url)
+      node[:URL] = url
     end
   end
   class External < Thing
