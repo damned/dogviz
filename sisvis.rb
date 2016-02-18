@@ -15,7 +15,14 @@ module Sisvis
       parent.node
     end
     def doclink(url)
-      node[:URL] = url
+      node[:URL] = url unless node.nil?
+    end
+    def rollup?
+      puts "#{name}#rollup? #{@rollup}"
+      @rollup
+    end
+    def rollup!
+      @rollup = true
     end
   end
 
@@ -28,10 +35,14 @@ module Sisvis
       @parent = parent
       @name = name
       @id = create_id(name, parent)
-      default_options = {:shape => 'box', :style => ''}
-      @node = parent_node.add_nodes(id, default_options.merge(options))
+      if parent.rollup?
+        rollup!
+      else
+        default_options = {:shape => 'box', :style => ''}
+        @node = parent_node.add_nodes(id, default_options.merge(options))
+        node[:label] = name
+      end
       parent.register name, self
-      node[:label] = name
     end
 
     def points_to_all(*others)
@@ -39,13 +50,27 @@ module Sisvis
         points_to other
       }
     end
+
     def points_to(other, options = {})
       other_thing = if other.is_a? Thing
                       other
                     else
                       other.entry_process
                     end
-      edge = g.add_edges id, other_thing.id
+
+      rollup_to = false
+      while (other_thing.rollup? && other_thing.parent.rollup?) do
+        rollup_to = true
+        other_thing = other_thing.parent
+      end
+
+      from = self
+      while (from.rollup? && from.parent.rollup?) do
+        return if rollup_to # pointing from rolled up node to rolled up node i.e will point to self
+        from = from.parent
+      end
+
+      edge = g.add_edges from.id, other_thing.id
       edge[:label] = options[:name] if options.has_key?(:name)
       edge[:style] = options[:style] if options.has_key?(:style)
       edge
@@ -84,9 +109,23 @@ module Sisvis
       @id = create_id(name, parent)
 
       prefix = cluster_prefix(options)
-      @node = parent_node.add_graph(prefix + id, options)
+      if options[:rollup]
+        options.delete :rollup
+        rollup!
+      end
+      if parent.rollup?
+        rollup!
+      end
+      if rollup?
+        if !parent.rollup?
+          default_options = {:shape => 'box', :style => ''}
+          @node = parent_node.add_nodes(id, default_options.merge(options))
+        end
+      else
+        @node = parent_node.add_graph(prefix + id, options)
+      end
 
-      node[:label] = name
+      node[:label] = name unless node.nil?
       parent.register name, self
     end
 
@@ -111,8 +150,8 @@ module Sisvis
 
   end
   module Creators
-    def box(name)
-      Box.new(self, name)
+    def box(name, options={})
+      Box.new(self, name, options)
     end
     def pipeline(name)
       Pipeline.new(self, name)
@@ -144,16 +183,19 @@ module Sisvis
     def node
       g
     end
+    def rollup?
+      false
+    end
     def register(name, thing)
       @registry.register name, thing
     end
   end
   class Box < Container
-    def initialize(parent, name)
-      super parent, name, {style: 'filled', color: '#ffaaaa'}
+    def initialize(parent, name, options={})
+      super parent, name, {style: 'filled', color: '#ffaaaa'}.merge(options)
     end
-    def service(name)
-      Service.new self, name
+    def service(name, options={})
+      Service.new self, name, options
     end
     def process(name)
       Process.new self, name
