@@ -34,15 +34,21 @@ module Sisvis
       node[:label] = name
     end
 
-    def points_to(*others)
+    def points_to_all(*others)
       others.each {|other|
-        other_thing = if other.is_a? Thing
-                        other
-                      else
-                        other.entry_process
-                      end
-        g.add_edges id, other_thing.id
+        points_to other
       }
+    end
+    def points_to(other, options = {})
+      other_thing = if other.is_a? Thing
+                      other
+                    else
+                      other.entry_process
+                    end
+      edge = g.add_edges id, other_thing.id
+      edge[:label] = options[:name] if options.has_key?(:name)
+      edge[:style] = options[:style] if options.has_key?(:style)
+      edge
     end
   end
 
@@ -159,6 +165,9 @@ module Sisvis
     attr_writer :entry_process
   end
   class Service < Container
+    def initialize(parent, name, options={})
+      super parent, name, options.merge(color: '#cccccc', style: 'filled')
+    end
     include Creators
   end
   class Pipeline < Container
@@ -167,9 +176,28 @@ module Sisvis
     end
     include Creators
     def stage(name)
-      stage = thing name
-      stage.node[:URL]="http://go/tw.#{name}"
-      stage
+      Stage.new self, name
+    end
+  end
+  class Stage < Thing
+    def initialize(parent, name)
+      super parent, name, color: '#aaccaa', style: 'filled'
+      node[:URL]="http://go/tw.#{name}"
+    end
+    def deploys(*apps)
+      apps.each {|app|
+        points_to app, name: 'deploys', style: 'dotted'
+      }
+    end
+    def triggers(*stages)
+      stages.each {|stage|
+        points_to stage, name: 'triggers', color: '#00bb00'
+      }
+    end
+    def configures(*things)
+      things.each {|thing|
+        points_to thing, name: 'configures', style: 'dashed'
+      }
     end
   end
   class Grouping < Container
@@ -182,8 +210,11 @@ module Sisvis
     def initialize(parent, name)
       super parent, name, style: 'filled'
     end
-    def calls(*callees)
-      points_to *callees
+    def calls_all(*callees)
+      points_to_all *callees
+    end
+    def calls(callee, options={})
+      points_to callee, options
     end
   end
   class External < Thing
