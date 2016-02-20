@@ -8,8 +8,8 @@ module Sisvis
       parts += name.split /\s/
       parts.join '_'
     end
-    def g
-      parent.g
+    def graph
+      parent.graph
     end
     def parent_node
       parent.node
@@ -22,6 +22,11 @@ module Sisvis
     end
     def rollup!
       @rollup = true
+    end
+  end
+  module Parent
+    def thing(name)
+      Thing.new self, name
     end
   end
 
@@ -68,7 +73,7 @@ module Sisvis
 
       return if from == other_thing
 
-      edge = g.add_edges from.id, other_thing.id
+      edge = graph.add_edges from.id, other_thing.id
       edge[:label] = options[:name] if options.has_key?(:name)
       edge[:style] = options[:style] if options.has_key?(:style)
       edge
@@ -77,6 +82,7 @@ module Sisvis
 
   class Container
     include Common
+    include Parent
     attr_reader :parent
     attr_reader :name, :id, :node
 
@@ -141,16 +147,17 @@ module Sisvis
   end
 
   class System
+    include Parent
     extend Forwardable
-    def_delegator :@g, :output
-    attr_reader :g
-    def initialize(hints = {splines: 'line'})
+    def_delegator :@graph, :output
+    attr_reader :graph
+    def initialize(name, hints = {splines: 'line'})
       @registry = Registry.new
-      @g = GraphViz.digraph( "G" )
-      g[hints]
+      @graph = GraphViz.digraph(name)
+      graph[hints]
     end
     def node
-      g
+      graph
     end
     def rollup?
       false
