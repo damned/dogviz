@@ -25,11 +25,20 @@ module Sisvis
     end
   end
   module Parent
+    def find(name)
+      @registry.lookup name
+    end
     def thing(name)
       Thing.new self, name
     end
     def container(name, options={})
       Container.new self, name, options
+    end
+    def logical_container(name, options={})
+      LogicalContainer.new self, name, options
+    end
+    def group(name, options={})
+      logical_container name, options
     end
   end
 
@@ -89,25 +98,15 @@ module Sisvis
       @parent = parent
       @name = name
       @id = create_id(name, parent)
-      @rollup = false
 
       prefix = cluster_prefix(options)
-      if options[:rollup]
-        options.delete :rollup
-        rollup!
-      end
-      if parent.rollup?
-        rollup!
-      end
+      init_rollup options, parent
       if rollup?
         if !parent.rollup?
-          default_options = {:shape => 'box', :style => ''}
-          @node = parent_node.add_nodes(id, default_options.merge(options))
-          @rendered_id = id
+          create_as_node(options)
         end
       else
-        @rendered_id = prefix + id
-        @node = parent_node.add_graph(rendered_id, options)
+        create_as_subgraph(options, prefix)
       end
 
       node[:label] = name unless node.nil?
@@ -118,11 +117,28 @@ module Sisvis
       @registry.register name, thing
       parent.register name, thing
     end
-    def find(name)
-      @registry.lookup name
-    end
 
     private
+
+    def create_as_subgraph(options, prefix)
+      @rendered_id = prefix + id
+      @node = parent_node.add_graph(rendered_id, options)
+    end
+
+    def create_as_node(options)
+      default_options = {:shape => 'box', :style => ''}
+      @node = parent_node.add_nodes(id, default_options.merge(options))
+      @rendered_id = id
+    end
+
+    def init_rollup(options, parent)
+      @rollup = false
+      rollup! if options[:rollup]
+      options.delete(:rollup)
+      if parent.rollup?
+        rollup!
+      end
+    end
 
     def cluster_prefix(options)
       is_cluster = true
@@ -162,6 +178,11 @@ module Sisvis
     end
   end
 
+  class LookupError < StandardError
+    def initialize(name)
+      super "More than one object registered of name '#{name}' - you'll need to search in a narrower context"
+    end
+  end
   class Registry
     def initialize
       @registry = {}
@@ -169,7 +190,7 @@ module Sisvis
 
     def register(name, thing)
       if @registry.has_key?(name)
-        @registry[name] = StandardError.new "More than one object registered of name '#{name}' - you'll need to search in a narrower context"
+        @registry[name] = LookupError.new name
       else
         @registry[name] = thing
       end

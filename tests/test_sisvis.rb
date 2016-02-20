@@ -34,11 +34,18 @@ class TestSisvis < Test::Unit::TestCase
 
   def test_containers_are_subgraphs_prefixed_with_cluster_for_visual_containment_in_GraphViz
     top = sys.container('top')
-    top_thing = top.thing('top thing')
     nested = top.container('nested')
-    nested_thing = nested.thing('nested thing')
 
     assert_equal('cluster_top', subgraph_ids.first)
+    assert_equal('cluster_top_nested', subgraph_ids.last)
+  end
+
+  def test_logical_containers_have_no_cluster_prefix_so_will_not_be_visible_in_Graphviz
+    top = sys.logical_container('top')
+    top_thing = top.thing('top thing')
+
+    assert_equal(['top'], subgraph_ids)
+    assert_equal(top_thing.id, subgraph('top').get_node("#{top_thing.id}").id)
   end
 
   def test_nested_containers_have_things
@@ -90,10 +97,36 @@ class TestSisvis < Test::Unit::TestCase
     assert_equal('pointer->group', connections)
   end
 
+  def test_points_from_thing_in_rolled_up_container
+    group = sys.group('group')
+    group.rollup!
+
+    pointer = group.thing('pointer')
+    target = sys.thing('target')
+
+    pointer.points_to target
+
+    assert_equal('group->target', connections)
+  end
+
+  def test_find_thing
+    sys.group('top').thing('needle')
+
+    assert_equal('needle', sys.find('needle').name)
+  end
+
+  def test_find_duplicate_show_blow_up
+    sys.group('A').thing('needle')
+    sys.group('B').thing('needle')
+
+    assert_raise LookupError do
+      sys.find('needle').name
+    end
+  end
+
   def test_points_to_rolled_up_nested_containers_of_target
-    top = sys.container('top')
-    nested = top.container('nested')
-    nested.rollup!
+    top = sys.container('top', rollup: false)
+    nested = top.container('nested', rollup: true)
     target = nested.container('subnested').thing('target')
     pointer = sys.thing('pointer')
 
@@ -104,6 +137,14 @@ class TestSisvis < Test::Unit::TestCase
 
     assert_equal('pointer->top_nested', connections)
     assert_not_nil(graph.find_node('top_thing_in_top'))
+  end
+
+  def test_doclinks_create_links
+    a = sys.thing('a')
+    doc_url = 'http://some.url/'
+    a.doclink doc_url
+
+    assert_equal(doc_url, find('a')['URL'].to_ruby)
   end
 
   private
