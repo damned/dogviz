@@ -82,7 +82,7 @@ module Sisvis
     include Common
     include Parent
     attr_reader :parent
-    attr_reader :name, :id, :node
+    attr_reader :name, :id, :node, :rendered_id
 
     def initialize(parent, name, options = {})
       @registry = Registry.new
@@ -103,9 +103,11 @@ module Sisvis
         if !parent.rollup?
           default_options = {:shape => 'box', :style => ''}
           @node = parent_node.add_nodes(id, default_options.merge(options))
+          @rendered_id = id
         end
       else
-        @node = parent_node.add_graph(prefix + id, options)
+        @rendered_id = prefix + id
+        @node = parent_node.add_graph(rendered_id, options)
       end
 
       node[:label] = name unless node.nil?

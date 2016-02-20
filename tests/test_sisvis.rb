@@ -31,6 +31,32 @@ class TestSisvis < Test::Unit::TestCase
     assert_equal('a->b a->c', connections)
   end
 
+  def test_containers_are_subgraphs_prefixed_with_cluster_for_visual_containment_in_GraphViz
+    top = sys.container('top')
+    top_thing = top.thing('top thing')
+    nested = top.container('nested')
+    nested_thing = nested.thing('nested thing')
+
+    assert_equal('cluster_top', subgraph_ids.first)
+  end
+
+  def test_nested_containers_have_things
+    top = sys.container('top')
+    top_thing = top.thing('top thing')
+    nested = top.container('nested')
+    nested_thing = nested.thing('nested thing')
+
+    assert_equal([top.rendered_id, nested.rendered_id], subgraph_ids)
+
+    top_subgraph = subgraph(top.rendered_id)
+    nested_subgraph = subgraph(nested.rendered_id)
+
+    assert_equal(top_thing.id, top_subgraph.get_node(top_thing.id).id)
+    assert_equal(nested_thing.id, nested_subgraph.get_node(nested_thing.id).id)
+    assert_nil(top_subgraph.get_node(nested_thing.id), 'should not be in other container')
+    assert_nil(nested_subgraph.get_node(top_thing.id), 'should not be in other container')
+  end
+
   def test_point_into_target_in_container
     container = sys.container('container')
     target = container.thing('target')
@@ -80,6 +106,23 @@ class TestSisvis < Test::Unit::TestCase
   end
 
   private
+
+  def subgraph_ids
+    subgraphs.map(&:id)
+  end
+
+  def subgraph(id)
+    subgraphs.find {|sub| sub.id == id }
+  end
+
+  def subgraphs(from=graph)
+    subs = []
+    from.each_graph {|sub_name, sub|
+      subs << sub
+      subs += subgraphs(sub)
+    }
+    subs
+  end
 
   def connections(sep=' ')
     edges.map {|e|
