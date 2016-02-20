@@ -141,10 +141,12 @@ module Sisvis
   end
 
   class System
+    extend Forwardable
+    def_delegator :@g, :output
     attr_reader :g
-    def initialize(g, hints = {splines: 'line'})
+    def initialize(hints = {splines: 'line'})
       @registry = Registry.new
-      @g = g
+      @g = GraphViz.digraph( "G" )
       g[hints]
     end
     def node
