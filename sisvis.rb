@@ -115,6 +115,12 @@ module Sisvis
       @registry.lookup name
     end
 
+    def entry_process
+      raise 'if you wanna use entry_process, you got to set it first!' if @entry_process.nil?
+      @entry_process
+    end
+    attr_writer :entry_process
+
     private
 
     def cluster_prefix(options)
