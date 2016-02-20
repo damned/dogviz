@@ -157,6 +157,8 @@ module Sisvis
     end
   end
 
+  require 'date'
+
   class System
     include Parent
     extend Forwardable
@@ -164,7 +166,7 @@ module Sisvis
     attr_reader :graph
     def initialize(name, hints = {splines: 'line'})
       @registry = Registry.new
-      @graph = GraphViz.digraph(name)
+      @graph = GraphViz.digraph(create_title(name))
       graph[hints]
     end
     def node
@@ -175,6 +177,11 @@ module Sisvis
     end
     def register(name, thing)
       @registry.register name, thing
+    end
+    private
+    def create_title(name)
+      now = DateTime.now
+      "#{now.strftime '%H:%M'} #{name} #{now.strftime '%F'}"
     end
   end
 
