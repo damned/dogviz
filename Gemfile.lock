@@ -1,6 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    colorize (0.7.7)
     multi_json (1.8.4)
     ruby-graphviz (1.2.2)
     simplecov (0.7.1)
@@ -12,5 +13,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  colorize
   ruby-graphviz
   simplecov
+
+BUNDLED WITH
+   1.10.6
