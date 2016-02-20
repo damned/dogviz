@@ -28,6 +28,9 @@ module Sisvis
     def thing(name)
       Thing.new self, name
     end
+    def container(name, options={})
+      Container.new self, name, options
+    end
   end
 
   class Thing
@@ -86,6 +89,7 @@ module Sisvis
       @parent = parent
       @name = name
       @id = create_id(name, parent)
+      @rollup = false
 
       prefix = cluster_prefix(options)
       if options[:rollup]
