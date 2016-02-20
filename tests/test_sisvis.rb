@@ -1,5 +1,6 @@
 require "test/unit"
-require_relative '../sisvis'
+
+require_relative '../lib/sisvis'
 
 class TestSisvis < Test::Unit::TestCase
   include Sisvis
