@@ -75,26 +75,6 @@ module Sisvis
     end
   end
 
-  class Registry
-    def initialize
-      @registry = {}
-    end
-
-    def register(name, thing)
-      if @registry.has_key?(name)
-        @registry[name] = StandardError.new "More than one object registered of name '#{name}' - you'll need to search in a narrower context"
-      else
-        @registry[name] = thing
-      end
-    end
-
-    def lookup(name)
-      found = @registry[name]
-      raise found if found.is_a?(Exception)
-      found
-    end
-  end
-
   class Container
     include Common
     attr_reader :parent
@@ -147,29 +127,13 @@ module Sisvis
     end
 
   end
-  module Creators
-    def box(name, options={})
-      Box.new(self, name, options)
-    end
-    def pipeline(name)
-      Pipeline.new(self, name)
-    end
-    def thing(name)
-      Thing.new self, name
-    end
-    def lb(name)
-      LoadBalancer.new self, name
-    end
-    def process(name)
-      Process.new self, name
-    end
-    def external(name)
-      External.new self, name
-    end
-    def grouping(name, options = {})
-      Grouping.new self, name, options
+
+  class LogicalContainer < Container
+    def initialize(parent, name, options)
+      super parent, name, options.merge(cluster: false)
     end
   end
+
   class System
     attr_reader :g
     def initialize(g, hints = {splines: 'line'})
@@ -177,7 +141,6 @@ module Sisvis
       @g = g
       g[hints]
     end
-    include Creators
     def node
       g
     end
@@ -188,102 +151,25 @@ module Sisvis
       @registry.register name, thing
     end
   end
-  class Box < Container
-    def initialize(parent, name, options={})
-      super parent, name, {style: 'filled', color: '#ffaaaa'}.merge(options)
+
+  class Registry
+    def initialize
+      @registry = {}
     end
-    def service(name, options={})
-      Service.new self, name, options
+
+    def register(name, thing)
+      if @registry.has_key?(name)
+        @registry[name] = StandardError.new "More than one object registered of name '#{name}' - you'll need to search in a narrower context"
+      else
+        @registry[name] = thing
+      end
     end
-    def process(name)
-      Process.new self, name
-    end
-    def entry_process
-      raise 'if you wanna use entry_process, you got to set it first!' if @entry_process.nil?
-      @entry_process
-    end
-    attr_writer :entry_process
-  end
-  class Service < Container
-    def initialize(parent, name, options={})
-      super parent, name, options.merge(color: '#cccccc', style: 'filled')
-    end
-    include Creators
-  end
-  class Pipeline < Container
-    def initialize(parent, name, options={})
-      super parent, name, options.merge(color: '#c8f8c8', style: 'filled')
-    end
-    include Creators
-    def stage(name)
-      Stage.new self, name
-    end
-  end
-  class Stage < Thing
-    def initialize(parent, name)
-      super parent, name, color: '#aaccaa', style: 'filled'
-      node[:URL]="http://go/tw.#{name}"
-    end
-    def deploys(*apps)
-      apps.each {|app|
-        points_to app, name: 'deploys', style: 'dotted'
-      }
-    end
-    def triggers(*stages)
-      stages.each {|stage|
-        points_to stage, name: 'triggers', color: '#00bb00'
-      }
-    end
-    def configures(*things)
-      things.each {|thing|
-        points_to thing, name: 'configures', style: 'dashed'
-      }
-    end
-  end
-  class Grouping < Container
-    def initialize(parent, name, options)
-      super parent, name, options.merge(cluster: false)
-    end
-    include Creators
-  end
-  class Process < Thing
-    def initialize(parent, name)
-      super parent, name, style: 'filled'
-    end
-    def calls_all(*callees)
-      points_to_all *callees
-    end
-    def calls(callee, options={})
-      points_to callee, options
-    end
-  end
-  class External < Thing
-    def initialize(parent, name)
-      super parent, name, color: 'lightyellow', style: 'filled'
-    end
-  end
-  class LoadBalancer < Thing
-    def initialize(parent, name)
-      super parent, name, color: '#ff6666', style: 'filled'
-      doclink 'https://mycloud.rackspace.com/cloud/553357/load_balancers'
+
+    def lookup(name)
+      found = @registry[name]
+      raise found if found.is_a?(Exception)
+      found
     end
   end
 
-  class Repo
-    def initialize(name)
-      @name = name
-    end
-
-    def url
-      "https://github.com/www-thoughtworks-com/#{@name}"
-    end
-
-    def source(path)
-      "#{url}/blob/master/#{path}"
-    end
-
-    def to_s
-      url
-    end
-  end
 end
