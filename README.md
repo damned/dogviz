@@ -1,6 +1,6 @@
 # sisvis
 system visualisation built on graphviz
 
-gem install ruby-graphviz
+bundle install
 
-ruby sys.rb
+bundle exec ruby sys.rb
