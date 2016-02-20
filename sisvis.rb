@@ -55,15 +55,10 @@ module Sisvis
       }
     end
 
-    def points_to(other, options = {})
-      other_thing = if other.is_a? Thing
-                      other
-                    else
-                      other.entry_process
-                    end
-
-      while (other_thing.rollup? && other_thing.parent.rollup?) do
-        other_thing = other_thing.parent
+    def points_to(other_thing, options = {})
+      other = other_thing
+      while (other.rollup? && other.parent.rollup?) do
+        other = other.parent
       end
 
       from = self
@@ -71,9 +66,9 @@ module Sisvis
         from = from.parent
       end
 
-      return if from == other_thing
+      return if from == other
 
-      edge = graph.add_edges from.id, other_thing.id
+      edge = graph.add_edges from.id, other.id
       edge[:label] = options[:name] if options.has_key?(:name)
       edge[:style] = options[:style] if options.has_key?(:style)
       edge
@@ -120,12 +115,6 @@ module Sisvis
     def find(name)
       @registry.lookup name
     end
-
-    def entry_process
-      raise 'if you wanna use entry_process, you got to set it first!' if @entry_process.nil?
-      @entry_process
-    end
-    attr_writer :entry_process
 
     private
 
