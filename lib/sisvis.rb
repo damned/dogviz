@@ -186,6 +186,8 @@ module Sisvis
   end
 
   class LookupError < StandardError
+  end
+  class DuplicateLookupError < LookupError
     def initialize(name)
       super "More than one object registered of name '#{name}' - you'll need to search in a narrower context"
     end
@@ -197,7 +199,7 @@ module Sisvis
 
     def register(name, thing)
       if @registry.has_key?(name)
-        @registry[name] = LookupError.new name
+        @registry[name] = DuplicateLookupError.new name
       else
         @registry[name] = thing
       end
@@ -205,6 +207,7 @@ module Sisvis
 
     def lookup(name)
       found = @registry[name]
+      raise LookupError.new("could not find '#{name}'") if found.nil?
       raise found if found.is_a?(Exception)
       found
     end

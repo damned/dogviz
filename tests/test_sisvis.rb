@@ -124,6 +124,14 @@ class TestSisvis < Test::Unit::TestCase
     end
   end
 
+  def test_find_nothing_show_blow_up
+    sys.group('A').thing('needle')
+
+    assert_raise LookupError do
+      sys.find('not a needle')
+    end
+  end
+
   def test_points_to_rolled_up_nested_containers_of_target
     top = sys.container('top', rollup: false)
     nested = top.container('nested', rollup: true)
