@@ -109,29 +109,6 @@ class TestSisvis < Test::Unit::TestCase
     assert_equal('group->target', connections)
   end
 
-  def test_find_thing
-    sys.group('top').thing('needle')
-
-    assert_equal('needle', sys.find('needle').name)
-  end
-
-  def test_find_duplicate_show_blow_up
-    sys.group('A').thing('needle')
-    sys.group('B').thing('needle')
-
-    assert_raise LookupError do
-      sys.find('needle').name
-    end
-  end
-
-  def test_find_nothing_show_blow_up
-    sys.group('A').thing('needle')
-
-    assert_raise LookupError do
-      sys.find('not a needle')
-    end
-  end
-
   def test_points_to_rolled_up_nested_containers_of_target
     top = sys.container('top', rollup: false)
     nested = top.container('nested', rollup: true)
@@ -145,6 +122,38 @@ class TestSisvis < Test::Unit::TestCase
 
     assert_equal('pointer->top_nested', connections)
     assert_not_nil(graph.find_node('top_thing_in_top'))
+  end
+
+  def test_points_to_multiple_things_in_rolled_up_group
+    group = sys.group('group', rollup: true)
+    pointer = sys.thing('pointer')
+
+    pointer.points_to_all group.thing('a'), group.thing('b'), group.thing('c')
+
+    assert_equal('pointer->group', connections)
+  end
+
+  def test_find_thing
+    sys.group('top').thing('needle')
+
+    assert_equal('needle', sys.find('needle').name)
+  end
+
+  def test_find_duplicate_show_blow_up
+    sys.group('A').thing('needle')
+    sys.group('B').thing('needle')
+
+    assert_raise DuplicateLookupError do
+      sys.find('needle').name
+    end
+  end
+
+  def test_find_nothing_show_blow_up
+    sys.group('A').thing('needle')
+
+    assert_raise LookupError do
+      sys.find('not a needle')
+    end
   end
 
   def test_doclinks_create_links

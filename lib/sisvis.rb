@@ -52,12 +52,13 @@ module Sisvis
   class Thing
     include Common
     attr_reader :parent
-    attr_reader :name, :id, :node
+    attr_reader :name, :id, :node, :pointees
 
     def initialize(parent, name, options = {})
       @parent = parent
       @name = name
       @id = create_id(name, parent)
+      @pointees = []
       if parent.rollup?
         rollup!
       else
@@ -86,7 +87,9 @@ module Sisvis
       end
 
       return if from == other
+      return if pointees.include? other
 
+      pointees << other
       edge = graph.add_edges from.id, other.id
       edge[:label] = options[:name] if options.has_key?(:name)
       edge[:style] = options[:style] if options.has_key?(:style)
