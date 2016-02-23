@@ -14,6 +14,13 @@ module Sisvis
     def parent_node
       parent.node
     end
+    def root
+      ancestor = self
+      while ancestor.respond_to?(:parent)
+        ancestor = ancestor.parent
+      end
+      ancestor
+    end
     def doclink(url)
       node[:URL] = url unless node.nil?
     end
