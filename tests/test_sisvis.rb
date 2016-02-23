@@ -133,6 +133,15 @@ class TestSisvis < Test::Unit::TestCase
     assert_equal('pointer->group', connections)
   end
 
+  def test_pointing_from_rolled_up_thing_in_non_rolled_up_group_creates_no_links
+    a = sys.thing('a', rollup: true)
+    b = sys.thing('b')
+    c = sys.thing('c')
+    a.points_to b
+    b.points_to c
+    assert_equal('b->c', connections)
+  end
+
   def test_find_thing
     sys.group('top').thing('needle')
 

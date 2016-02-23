@@ -35,8 +35,8 @@ module Sisvis
     def find(name)
       @registry.lookup name
     end
-    def thing(name)
-      Thing.new self, name
+    def thing(name, options={})
+      Thing.new self, name, options
     end
     def container(name, options={})
       Container.new self, name, options
@@ -59,9 +59,10 @@ module Sisvis
       @name = name
       @id = create_id(name, parent)
       @pointees = []
-      if parent.rollup?
+      if parent.rollup? || options[:rollup]
         rollup!
       else
+        options.delete(:rollup)
         default_options = {:shape => 'box', :style => ''}
         @node = parent_node.add_nodes(id, default_options.merge(options))
         node[:label] = name
@@ -81,14 +82,24 @@ module Sisvis
         other = other.parent
       end
 
+      return if other.is_a?(Thing) && other.rollup?
+
       from = self
       while (from.rollup? && from.parent.rollup?) do
         from = from.parent
       end
 
+      return if from == self && from.rollup?
+
       return if from == other
       return if pointees.include? other
 
+      point_to_node(from, options, other)
+    end
+
+    private
+
+    def point_to_node(from, options, other)
       pointees << other
       edge = graph.add_edges from.id, other.id
       edge[:label] = options[:name] if options.has_key?(:name)
@@ -113,6 +124,7 @@ module Sisvis
       init_rollup options, parent
       if rollup?
         if !parent.rollup?
+          options.delete(:rank)
           create_as_node(options)
         end
       else
