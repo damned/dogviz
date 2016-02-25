@@ -2,7 +2,7 @@ require "test/unit"
 
 require_relative '../lib/sisvis'
 
-class TestSisvis < Test::Unit::TestCase
+class TestSisvisGraphvizRendering < Test::Unit::TestCase
   include Sisvis
 
   attr_reader :sys
@@ -53,6 +53,8 @@ class TestSisvis < Test::Unit::TestCase
     top_thing = top.thing('top thing')
     nested = top.container('nested')
     nested_thing = nested.thing('nested thing')
+
+    graph
 
     assert_equal([top.render_id, nested.render_id], subgraph_ids)
 
