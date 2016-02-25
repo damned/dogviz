@@ -12,7 +12,7 @@ class TestSisvis < Test::Unit::TestCase
   end
 
   def graph
-    sys.graph
+    sys.render
   end
 
   def test_points_to_links_nodes
@@ -73,6 +73,12 @@ class TestSisvis < Test::Unit::TestCase
     pointer.points_to target
 
     assert_equal("pointer->#{target.id}", connections)
+  end
+
+  def test_node_names_are_displayed
+    thing = sys.container('whatever').thing('the thing')
+    assert_equal('whatever_the_thing', thing.id)
+    assert_equal('"the thing"', find(thing.id)[:label].to_s)
   end
 
   def test_point_into_target_in_nested_containers
