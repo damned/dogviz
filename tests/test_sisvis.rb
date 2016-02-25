@@ -54,10 +54,10 @@ class TestSisvis < Test::Unit::TestCase
     nested = top.container('nested')
     nested_thing = nested.thing('nested thing')
 
-    assert_equal([top.rendered_id, nested.rendered_id], subgraph_ids)
+    assert_equal([top.render_id, nested.render_id], subgraph_ids)
 
-    top_subgraph = subgraph(top.rendered_id)
-    nested_subgraph = subgraph(nested.rendered_id)
+    top_subgraph = subgraph(top.render_id)
+    nested_subgraph = subgraph(nested.render_id)
 
     assert_equal(top_thing.id, top_subgraph.get_node(top_thing.id).id)
     assert_equal(nested_thing.id, nested_subgraph.get_node(nested_thing.id).id)

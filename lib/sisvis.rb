@@ -22,7 +22,18 @@ module Sisvis
       ancestor
     end
     def doclink(url)
-      node[:URL] = url unless node.nil?
+      setup_render_attributes(URL: url)
+      apply_render_attributes
+    end
+    def setup_render_attributes(attributes)
+      @attributes ||= {}
+      @attributes.merge!(attributes)
+    end
+    def apply_render_attributes
+      return if node.nil?
+      @attributes.each do |key, value|
+        node[key] = value
+      end
     end
     def rollup?
       @rollup
@@ -52,22 +63,32 @@ module Sisvis
   class Thing
     include Common
     attr_reader :parent
-    attr_reader :name, :id, :node, :pointees
+    attr_reader :name, :id, :node, :edges
 
     def initialize(parent, name, options = {})
       @parent = parent
       @name = name
       @id = create_id(name, parent)
-      @pointees = []
+      @edges = []
       if parent.rollup? || options[:rollup]
         rollup!
       else
         options.delete(:rollup)
-        default_options = {:shape => 'box', :style => ''}
-        @node = parent_node.add_nodes(id, default_options.merge(options))
-        node[:label] = name
+        setup_render_node(name, options)
+        render_node
       end
       parent.register name, self
+    end
+
+    def setup_render_node(name, options)
+      default_options = {:shape => 'box', :style => ''}
+      setup_render_attributes label: name
+      @render_options = default_options.merge(options)
+    end
+
+    def render_node
+      @node = parent_node.add_nodes(id, @render_options)
+      apply_render_attributes
     end
 
     def points_to_all(*others)
@@ -94,17 +115,37 @@ module Sisvis
       return if from == other
       return if pointees.include? other
 
-      point_to_node(from, options, other)
+      edge = setup_render_edge(from, other, options)
+      render_edge(edge)
+    end
+
+    def pointees
+      edges.map {|e|
+        e[:other]
+      }
     end
 
     private
 
-    def point_to_node(from, options, other)
-      pointees << other
-      edge = graph.add_edges from.id, other.id
-      edge[:label] = options[:name] if options.has_key?(:name)
-      edge[:style] = options[:style] if options.has_key?(:style)
-      edge
+
+    def setup_render_edge(from, other, options)
+      edges << {
+          from: from,
+          other: other,
+          options: {
+              label: options[:name],
+              style: options[:style]
+          }
+      }
+      edge = edges.last
+    end
+
+    def render_edge(edge)
+      rendered_edge = graph.add_edges edge[:from].id, edge[:other].id
+      edge[:options].each { |key, value|
+        rendered_edge[key] = value unless value.nil?
+      }
+      rendered_edge
     end
   end
 
@@ -112,7 +153,7 @@ module Sisvis
     include Common
     include Parent
     attr_reader :parent
-    attr_reader :name, :id, :node, :rendered_id
+    attr_reader :name, :id, :node, :render_id, :render_options
 
     def initialize(parent, name, options = {})
       @registry = Registry.new
@@ -122,16 +163,18 @@ module Sisvis
 
       prefix = cluster_prefix(options)
       init_rollup options, parent
+      setup_render_attributes label: name
       if rollup?
         if !parent.rollup?
           options.delete(:rank)
-          create_as_node(options)
+          setup_node_render(options)
+          render_node
         end
       else
-        create_as_subgraph(options, prefix)
+        setup_subgraph_render(options, prefix)
+        render_subgraph
       end
 
-      node[:label] = name unless node.nil?
       parent.register name, self
     end
 
@@ -142,15 +185,25 @@ module Sisvis
 
     private
 
-    def create_as_subgraph(options, prefix)
-      @rendered_id = prefix + id
-      @node = parent_node.add_graph(rendered_id, options)
+    def setup_subgraph_render(options, prefix)
+      @render_id = prefix + id
+      @render_options = options
     end
 
-    def create_as_node(options)
+    def setup_node_render(options)
+      @render_id = id
       default_options = {:shape => 'box', :style => ''}
-      @node = parent_node.add_nodes(id, default_options.merge(options))
-      @rendered_id = id
+      @render_options = default_options.merge(options)
+    end
+
+    def render_subgraph
+      @node = parent_node.add_graph(render_id, render_options)
+      apply_render_attributes
+    end
+
+    def render_node
+      @node = parent_node.add_nodes(render_id, render_options)
+      apply_render_attributes
     end
 
     def init_rollup(options, parent)
@@ -183,16 +236,28 @@ module Sisvis
 
   class System
     include Parent
-    extend Forwardable
-    def_delegator :@graph, :output
-    attr_reader :graph
+
+    attr_reader :render_hints, :title
+
     def initialize(name, hints = {splines: 'line'})
       @registry = Registry.new
-      @graph = GraphViz.digraph(create_title(name))
-      graph[hints]
+      @render_hints = hints
+      @title = create_title(name)
+      @graph = GraphViz.digraph(@title)
+      @graph[render_hints]
     end
     def node
       graph
+    end
+    def graph
+      render :graphviz
+    end
+    def output(*args)
+      graph.output *args
+    end
+    def render(type)
+      raise "dunno bout that '#{type}', only know :graphviz" unless type == :graphviz
+      @graph
     end
     def rollup?
       false
