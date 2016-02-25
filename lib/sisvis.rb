@@ -90,7 +90,6 @@ module Sisvis
     end
 
     def render_node
-      puts @render_options
       parent_node.add_nodes(id, @render_options)
       apply_render_attributes
     end
@@ -289,6 +288,7 @@ module Sisvis
     def output(*args)
       render
       out = graph.output *args
+      puts "Created output: #{args.join ' '}"
       out
     end
     def render(type=:graphviz)
@@ -297,6 +297,7 @@ module Sisvis
       children.each {|c|
         c.render
       }
+      puts 'Rendered'
       @rendered = true
       @graph
     end
