@@ -105,6 +105,12 @@ class TestSisvisGraphvizRendering < Test::Unit::TestCase
     assert_equal('pointer->group', connections)
   end
 
+  def test_do_not_render_rolled_up_thing
+    sys.thing('a').rollup!
+
+    assert_nil(find('a'))
+  end
+
   def test_points_from_thing_in_rolled_up_container
     group = sys.group('group')
     group.rollup!
@@ -148,6 +154,21 @@ class TestSisvisGraphvizRendering < Test::Unit::TestCase
     a.points_to b
     b.points_to c
     assert_equal('b->c', connections)
+  end
+
+  def test_point_to_between_and_from_things_in_rolled_up_container
+    entry = sys.thing('entry')
+    group = sys.group('group')
+    a = group.thing('a')
+    b = group.thing('b')
+    exit = sys.thing('exit')
+    entry.points_to a
+    a.points_to b
+    b.points_to exit
+
+    group.rollup!
+
+    assert_equal('entry->group group->exit', connections)
   end
 
   def test_find_thing

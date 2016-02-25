@@ -55,8 +55,17 @@ module Sisvis
     end
   end
   module Parent
-    def find(name)
-      @registry.lookup name
+    def find_all(&matcher)
+      raise MissingMatchBlockError.new unless block_given?
+      @by_name.find_all &matcher
+    end
+    def find(name=nil, &matcher)
+      if block_given?
+        @by_name.find &matcher
+      else
+        raise 'Need to provide name or block' if name.nil?
+        @by_name.lookup name
+      end
     end
     def thing(name, options={})
       add Thing.new self, name, options
@@ -79,14 +88,15 @@ module Sisvis
   class Thing
     include Common
     attr_reader :parent
-    attr_reader :name, :id, :edges
+    attr_reader :name, :id, :pointers, :edge_heads
 
     def initialize(parent, name, options = {})
       @parent = parent
       @name = name
       @id = create_id(name, parent)
-      @edges = []
+      @pointers = []
       @rollup = false
+      @edge_heads = []
 
       rollup! if options[:rollup]
       options.delete(:rollup)
@@ -114,12 +124,40 @@ module Sisvis
       }
     end
 
-    def points_to(other_thing, options = {})
-      other = other_thing
+    def points_to(other, options = {})
+      setup_render_edge(other, options)
+    end
+
+    def pointees
+      pointers.map {|e|
+        e[:other]
+      }
+    end
+
+    def render
+      render_node unless in_rollup?
+    end
+    def render_edges
+      pointers.each {|p| render_pointer p }
+    end
+
+    private
+
+    def setup_render_edge(other, options)
+      pointers << {
+          other: other,
+          options: {
+              label: options[:name],
+              style: options[:style]
+          }
+      }
+    end
+
+    def render_pointer(pointer)
+      other = pointer[:other]
       while (other.in_rollup? && !other.on_top_rollup?) do
         other = other.parent
       end
-
       return if other.under_rollup?
 
       from = self
@@ -130,43 +168,14 @@ module Sisvis
       return if from == self && from.in_rollup?
 
       return if from == other
-      return if pointees.include? other
+      return if edge_heads.include? other
 
-      setup_render_edge(from, other, options)
-    end
-
-    def pointees
-      edges.map {|e|
-        e[:other]
+      edge_heads << other
+      edge = graph.add_edges from.id, other.id
+      pointer[:options].each { |key, value|
+        edge[key] = value unless value.nil?
       }
-    end
-
-    def render
-      render_node unless under_rollup?
-
-      edges.each {|e| render_edge e }
-    end
-
-    private
-
-
-    def setup_render_edge(from, other, options)
-      edges << {
-          from: from,
-          other: other,
-          options: {
-              label: options[:name],
-              style: options[:style]
-          }
-      }
-    end
-
-    def render_edge(edge)
-      rendered_edge = graph.add_edges edge[:from].id, edge[:other].id
-      edge[:options].each { |key, value|
-        rendered_edge[key] = value unless value.nil?
-      }
-      rendered_edge
+      edge
     end
   end
 
@@ -178,7 +187,7 @@ module Sisvis
 
     def initialize(parent, name, options = {})
       @children = []
-      @registry = Registry.new
+      @by_name = Registry.new
       @parent = parent
       @name = name
       @id = create_id(name, parent)
@@ -186,13 +195,14 @@ module Sisvis
       init_rollup options
 
       setup_render_attributes label: name
+
       @render_options = options
 
       parent.register name, self
     end
 
     def register(name, thing)
-      @registry.register name, thing
+      @by_name.register name, thing
       parent.register name, thing
     end
 
@@ -205,6 +215,12 @@ module Sisvis
 
       children.each {|c|
         c.render
+      }
+    end
+
+    def render_edges
+      children.each {|c|
+        c.render_edges
       }
     end
 
@@ -271,38 +287,48 @@ module Sisvis
     alias :name :title
     def initialize(name, hints = {splines: 'line'})
       @children = []
-      @registry = Registry.new
+      @by_name = Registry.new
       @render_hints = hints
       @title = create_title(name)
       @rendered = false
       @graph = GraphViz.digraph(@title)
       @graph[render_hints]
     end
+
     def node
       graph
     end
+
     def output(*args)
       render
       out = graph.output *args
       puts "Created output: #{args.join ' '}"
       out
     end
+
     def render(type=:graphviz)
       return @graph if @rendered
       raise "dunno bout that '#{type}', only know :graphviz" unless type == :graphviz
       children.each {|c|
         c.render
       }
+      children.each {|c|
+        c.render_edges
+      }
       @rendered = true
       @graph
     end
+
     def rollup?
       false
     end
+
     def register(name, thing)
-      @registry.register name, thing
+      @by_name.register name, thing
     end
+
     private
+
     def create_title(name)
       now = DateTime.now
       "#{now.strftime '%H:%M'} #{name} #{now.strftime '%F'}"
@@ -311,6 +337,11 @@ module Sisvis
 
   class LookupError < StandardError
   end
+  class MissingMatchBlockError < LookupError
+    def initialize
+      super 'need to provide match block'
+    end
+  end
   class DuplicateLookupError < LookupError
     def initialize(name)
       super "More than one object registered of name '#{name}' - you'll need to search in a narrower context"
@@ -318,19 +349,31 @@ module Sisvis
   end
   class Registry
     def initialize
-      @registry = {}
+      @by_name = {}
+      @all = []
     end
 
     def register(name, thing)
-      if @registry.has_key?(name)
-        @registry[name] = DuplicateLookupError.new name
+      @all << thing
+      if @by_name.has_key?(name)
+        @by_name[name] = DuplicateLookupError.new name
       else
-        @registry[name] = thing
+        @by_name[name] = thing
       end
     end
 
+    def find(&matcher)
+      raise LookupError.new("need to provide match block") unless block_given?
+      @all.find &matcher
+    end
+
+    def find_all(&matcher)
+      raise MissingMatchBlockError.new unless block_given?
+      @all.select &matcher
+    end
+
     def lookup(name)
-      found = @registry[name]
+      found = @by_name[name]
       raise LookupError.new("could not find '#{name}'") if found.nil?
       raise found if found.is_a?(Exception)
       found

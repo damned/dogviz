@@ -59,4 +59,25 @@ class TestSisvisGraph < Test::Unit::TestCase
     assert_equal(true, a.in_rollup?)
   end
 
+  def test_find_with_match_block
+    nested_group = sys.group('g').group('nested group')
+    nested_thing = nested_group.thing('nested thing')
+    nested_group.thing('other thing')
+
+    assert_equal(nested_thing, sys.find {|n|
+      n.is_a?(Thing) && n.name.start_with?('nested')
+    })
+  end
+
+  def test_find_all
+    group = sys.group('g')
+    nested_group = group.group('nested group')
+    thing1 = group.thing('n1')
+    thing2 = nested_group.thing('n2')
+
+    assert_equal([thing1, thing2], sys.find_all {|n|
+      n.is_a?(Thing)
+    })
+  end
+
 end
