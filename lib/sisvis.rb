@@ -11,9 +11,6 @@ module Sisvis
     def graph
       parent.graph
     end
-    def parent_node
-      parent.node
-    end
     def root
       ancestors.last
     end
@@ -31,11 +28,6 @@ module Sisvis
     def setup_render_attributes(attributes)
       @attributes = {} if @attributes.nil?
       @attributes.merge!(attributes)
-    end
-    def apply_render_attributes
-      @attributes.each do |key, value|
-        node[key] = value
-      end
     end
     def rollup?
       @rollup
@@ -107,11 +99,10 @@ module Sisvis
       parent.register name, self
     end
 
-
-    def render_node
-      default_options = {:shape => 'box', :style => ''}
-      parent_node.add_nodes(id, default_options.merge(@render_options))
-      apply_render_attributes
+    def do_render_node(renderer)
+      render_options = @render_options
+      attributes = @attributes
+      renderer.render_node(parent, id, render_options, attributes)
     end
 
     def node
@@ -134,11 +125,14 @@ module Sisvis
       }
     end
 
-    def render
-      render_node unless in_rollup?
+    def render(renderer)
+      do_render_node(renderer) unless in_rollup?
     end
-    def render_edges
-      pointers.each {|p| render_pointer p }
+
+    def render_edges(renderer)
+      pointers.each {|p|
+        render_pointer p, renderer
+      }
     end
 
     private
@@ -153,7 +147,7 @@ module Sisvis
       }
     end
 
-    def render_pointer(pointer)
+    def render_pointer(pointer, renderer)
       other = pointer[:other]
       while (other.in_rollup? && !other.on_top_rollup?) do
         other = other.parent
@@ -171,11 +165,8 @@ module Sisvis
       return if edge_heads.include? other
 
       edge_heads << other
-      edge = graph.add_edges from.id, other.id
-      pointer[:options].each { |key, value|
-        edge[key] = value unless value.nil?
-      }
-      edge
+      render_options = pointer[:options]
+      renderer.render_edge(from, other, render_options)
     end
   end
 
@@ -206,21 +197,21 @@ module Sisvis
       parent.register name, thing
     end
 
-    def render
+    def render(renderer)
       if on_top_rollup?
-        render_node parent_node
+        do_render_node renderer
       elsif !under_rollup?
-        render_subgraph parent_node
+        do_render_subgraph renderer
       end
 
       children.each {|c|
-        c.render
+        c.render renderer
       }
     end
 
-    def render_edges
+    def render_edges(renderer)
       children.each {|c|
-        c.render_edges
+        c.render_edges renderer
       }
     end
 
@@ -234,24 +225,20 @@ module Sisvis
 
     private
 
-    def render_subgraph(parent_node)
+    def do_render_subgraph(renderer)
       @render_type = :subgraph
-      @render_id = cluster_prefix + id
-      @subgraph = parent_node.add_graph(@render_id, render_options)
-      apply_render_attributes
+      render_id = cluster_prefix + id
+      attributes = @attributes
+      @render_id = render_id
+      @subgraph = renderer.render_subgraph(parent, render_id, render_options, attributes)
     end
 
-    def render_node(parent_node)
+    def do_render_node(renderer)
       @render_type = :node
       @render_id = id
-      clean_node_attributes
-      parent_node.add_nodes(@render_id, {:shape => 'box', :style => ''}.merge(render_options))
-      apply_render_attributes
-    end
-
-    def clean_node_attributes
-      render_options.delete(:rank)
-      render_options.delete(:cluster)
+      render_id = @render_id
+      attributes = @attributes
+      renderer.render_node(parent, render_id, render_options, attributes)
     end
 
     def init_rollup(options)
@@ -279,20 +266,75 @@ module Sisvis
 
   require 'date'
 
+  class GraphvizRenderer
+    attr_reader :graph
+
+    def initialize(title, hints)
+      @graph = GraphViz.digraph(title)
+      @graph[hints]
+      @subgraphs = {}
+      @nodes = {}
+    end
+
+    def render_edge(from, other, options)
+      edge = graph.add_edges from.id, other.id
+      options.each { |key, value|
+        edge[key] = value unless value.nil?
+      }
+      edge
+    end
+
+    def render_node(parent, id, options, attributes)
+      clean_node_options options
+      default_options = {:shape => 'box', :style => ''}
+      node = parent_node(parent).add_nodes(id, default_options.merge(options))
+      apply_render_attributes node, attributes
+    end
+
+    def render_subgraph(parent, id, options, attributes)
+      subgraph = parent_node(parent).add_graph(id, options)
+      apply_render_attributes subgraph, attributes
+      @subgraphs[id] = subgraph
+      subgraph
+    end
+
+    private
+
+    def clean_node_options(options)
+      options.delete(:rank)
+      options.delete(:cluster)
+      options
+    end
+
+    def parent_node(parent)
+      return graph unless parent.respond_to?(:render_id)
+      node = graph.search_node(parent.render_id)
+      return node unless node.nil?
+      subgraph = @subgraphs[parent.render_id]
+      raise "couldn't find node or graph: #{parent.render_id}, out of graphs: #{graph_ids}" if subgraph.nil?
+      subgraph
+    end
+
+    def apply_render_attributes(node, attributes)
+      attributes.each do |key, value|
+        node[key] = value
+      end
+    end
+  end
+
   class System
     include Parent
 
     attr_reader :render_hints, :title, :children, :graph
 
     alias :name :title
+
     def initialize(name, hints = {splines: 'line'})
       @children = []
       @by_name = Registry.new
       @render_hints = hints
       @title = create_title(name)
       @rendered = false
-      @graph = GraphViz.digraph(@title)
-      @graph[render_hints]
     end
 
     def node
@@ -309,14 +351,17 @@ module Sisvis
     def render(type=:graphviz)
       return @graph if @rendered
       raise "dunno bout that '#{type}', only know :graphviz" unless type == :graphviz
+
+      renderer = GraphvizRenderer.new @title, render_hints
+
       children.each {|c|
-        c.render
+        c.render renderer
       }
       children.each {|c|
-        c.render_edges
+        c.render_edges renderer
       }
       @rendered = true
-      @graph
+      @graph = renderer.graph
     end
 
     def rollup?
