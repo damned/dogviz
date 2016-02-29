@@ -1,4 +1,4 @@
-require_relative '../lib/webvis'
+require_relative 'website_domain'
 
 def describe_tw_com(sys)
   website = sys.thing('website')
@@ -11,7 +11,7 @@ def output(sys, name)
   sys.output(svg: "#{name}-generated.svg")
 end
 
-include Webvis
+include WebsiteDomain
 
 render_hints = {
     splines: false
