@@ -1,20 +1,30 @@
 PATH
   remote: .
   specs:
-    help (0.0.1)
+    dogviz (0.0.1)
+      ruby-graphviz
 
 GEM
   remote: https://rubygems.org/
   specs:
+    colorize (0.7.7)
+    multi_json (1.8.4)
     rake (10.1.0)
+    ruby-graphviz (1.2.2)
+    simplecov (0.7.1)
+      multi_json (~> 1.0)
+      simplecov-html (~> 0.7.1)
+    simplecov-html (0.7.1)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   bundler (~> 1.10)
-  help!
+  colorize
+  dogviz!
   rake (~> 10.0)
+  simplecov
 
 BUNDLED WITH
    1.10.6
