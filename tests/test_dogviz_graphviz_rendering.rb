@@ -1,4 +1,4 @@
-require_relative 'unit_helper'
+require_relative 'setup_tests'
 
 class TestDogvizGraphvizRendering < Test::Unit::TestCase
   include Dogviz
