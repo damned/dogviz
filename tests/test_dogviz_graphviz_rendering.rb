@@ -225,10 +225,6 @@ class TestDogvizGraphvizRendering < Test::Unit::TestCase
     }.join sep
   end
 
-  def connected_ids
-    (edges.map(&:tail_node) + edges.map(&:head_node)).uniq
-  end
-
   def edges
     graph.each_edge
   end

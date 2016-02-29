@@ -8,12 +8,6 @@ module Dogviz
       parts += name.split /\s/
       parts.join '_'
     end
-    def graph
-      parent.graph
-    end
-    def root
-      ancestors.last
-    end
     def ancestors
       ancestors = [parent]
       loop do
@@ -105,10 +99,6 @@ module Dogviz
       renderer.render_node(parent, id, render_options, attributes)
     end
 
-    def node
-      graph.find_node(id)
-    end
-
     def points_to_all(*others)
       others.each {|other|
         points_to other
@@ -117,12 +107,6 @@ module Dogviz
 
     def points_to(other, options = {})
       setup_render_edge(other, options)
-    end
-
-    def pointees
-      pointers.map {|e|
-        e[:other]
-      }
     end
 
     def render(renderer)
@@ -213,14 +197,6 @@ module Dogviz
       children.each {|c|
         c.render_edges renderer
       }
-    end
-
-    def node
-      if render_type == :node
-        graph.find_node(render_id)
-      elsif render_type == :subgraph
-        @subgraph
-      end
     end
 
     private
@@ -335,10 +311,6 @@ module Dogviz
       @render_hints = hints
       @title = create_title(name)
       @rendered = false
-    end
-
-    def node
-      graph
     end
 
     def output(*args)
