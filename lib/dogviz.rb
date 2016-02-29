@@ -242,9 +242,43 @@ module Dogviz
 
   require 'date'
 
+  class RenderedSequence
+    def initialize(lines)
+      @lines = lines
+    end
+    def output(type_to_file)
+      text = @lines.join "\n"
+      File.write type_to_file.values.first, text
+      text
+    end
+  end
+  class SequenceRenderer
+    attr_reader :lines
+    def initialize(title, hints)
+      @lines = []
+    end
+
+    def render_subgraph(*args)
+
+    end
+
+    def render_node(*args)
+
+    end
+
+    def render_edge(from, other, options)
+      lines << "#{from.name} -> #{other.name}: #{options[:label]}"
+    end
+
+    def rendered
+      RenderedSequence.new lines
+    end
+
+  end
+
   class GraphvizRenderer
     attr_reader :graph
-
+    alias :rendered :graph
     def initialize(title, hints)
       @graph = GraphViz.digraph(title)
       @graph[hints]
@@ -301,7 +335,7 @@ module Dogviz
   class System
     include Parent
 
-    attr_reader :render_hints, :title, :children, :graph
+    attr_reader :render_hints, :title, :children, :rendered
 
     alias :name :title
 
@@ -310,21 +344,25 @@ module Dogviz
       @by_name = Registry.new
       @render_hints = hints
       @title = create_title(name)
-      @rendered = false
+      @rendered = nil
     end
 
-    def output(*args)
-      render
-      out = graph.output *args
-      puts "Created output: #{args.join ' '}"
+    def output(type_to_file)
+      type = type_to_file.keys.first
+      if type == :sequence
+        render SequenceRenderer
+      else
+        render GraphvizRenderer
+      end
+      out = rendered.output type_to_file
+      puts "Created output: #{type_to_file} x" unless ARGV.empty?
       out
     end
 
-    def render(type=:graphviz)
-      return @graph if @rendered
-      raise "dunno bout that '#{type}', only know :graphviz" unless type == :graphviz
+    def render(renderer_type=GraphvizRenderer)
+      return rendered unless rendered.nil?
 
-      renderer = GraphvizRenderer.new @title, render_hints
+      renderer = renderer_type.new @title, render_hints
 
       children.each {|c|
         c.render renderer
@@ -332,8 +370,7 @@ module Dogviz
       children.each {|c|
         c.render_edges renderer
       }
-      @rendered = true
-      @graph = renderer.graph
+      @rendered = renderer.rendered
     end
 
     def rollup?
