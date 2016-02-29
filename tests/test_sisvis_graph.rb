@@ -1,6 +1,4 @@
-require "test/unit"
-
-require_relative '../lib/dogviz'
+require_relative 'unit_helper'
 
 class TestDogvizGraph < Test::Unit::TestCase
   include Dogviz
