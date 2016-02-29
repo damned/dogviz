@@ -1,8 +1,8 @@
 PATH
   remote: .
   specs:
-    dogviz (0.0.2)
-      ruby-graphviz
+    dogviz (0.0.3)
+      ruby-graphviz (~> 1)
 
 GEM
   remote: https://rubygems.org/
@@ -21,10 +21,10 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 1.10)
-  colorize
+  colorize (~> 0)
   dogviz!
   rake (~> 10.0)
-  simplecov
+  simplecov (~> 0)
 
 BUNDLED WITH
    1.10.6
