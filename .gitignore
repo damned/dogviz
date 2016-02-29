@@ -2,3 +2,5 @@
 *-generated.*
 coverage
 sys.rb
+dogviz*gem
+Gemfile.lock
