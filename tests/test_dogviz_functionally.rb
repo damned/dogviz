@@ -1,38 +1,45 @@
 require_relative 'setup_tests'
+require_relative 'svg_graph'
 
-class TestDogvizFunctionally < Test::Unit::TestCase
+module Tests
+  class TestDogvizFunctionally < Test::Unit::TestCase
 
-  def svg_outfile
-    '/tmp/dogviz_functional_test.svg'
-  end
+    def svg_outfile
+      '/tmp/dogviz_functional_test.svg'
+    end
 
-  def setup
-    File.delete svg_outfile if File.exist?(svg_outfile)
-  end
+    def setup
+      File.delete svg_outfile if File.exist?(svg_outfile)
+    end
 
-  include Dogviz
-  def test_outputs_svg_graph
+    include Dogviz
+    def test_outputs_svg_graph
 
-    sys = System.new 'family'
+      sys = System.new 'family'
 
-    house = sys.container 'household'
+      house = sys.container 'household'
 
-    cat = house.thing 'cat'
-    dog = house.thing 'dog'
+      cat = house.thing 'cat'
+      dog = house.thing 'dog'
 
-    mum = house.thing 'mum'
-    son = house.thing 'son'
+      mum = house.thing 'mum'
+      son = house.thing 'son'
 
-    mum.points_to son, name: 'parents'
-    son.points_to mum, name: 'respects'
+      mum.points_to son, name: 'parents'
+      son.points_to mum, name: 'respects'
 
-    cat.points_to dog, name: 'chases'
-    dog.points_to son, name: 'follows'
+      cat.points_to dog, name: 'chases'
+      dog.points_to son, name: 'follows'
 
-    sys.output svg: svg_outfile
+      sys.output svg: svg_outfile
 
-    svg_content = File.read svg_outfile
+      graph = SvgGraph.parse_file svg_outfile
 
-    assert_includes svg_content, 'family'
+      assert_include graph.title, 'family'
+      assert_equal ['household'], graph.names_of.containers
+      assert_equal ['cat', 'dog', 'son', 'mum'], graph.names_of.things
+      assert_equal ['chases', 'follows', 'parents', 'respects'], graph.names_of.edges
+    end
+
   end
 end
