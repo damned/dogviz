@@ -1,14 +1,14 @@
 require "test/unit"
 
-require_relative '../lib/sisvis'
+require_relative '../lib/dogviz'
 
-class TestSisvisGraphvizRendering < Test::Unit::TestCase
-  include Sisvis
+class TestDogvizGraphvizRendering < Test::Unit::TestCase
+  include Dogviz
 
   attr_reader :sys
 
   def setup
-    @sys = Sisvis::System.new 'test'
+    @sys = Dogviz::System.new 'test'
   end
 
   def graph

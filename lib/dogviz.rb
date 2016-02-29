@@ -1,6 +1,6 @@
 require 'ruby-graphviz'
 
-module Sisvis
+module Dogviz
   module Common
     def create_id(name, parent)
       parts = []
