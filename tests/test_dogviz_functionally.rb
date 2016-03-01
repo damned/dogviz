@@ -18,28 +18,30 @@ module Tests
 
     include Dogviz
 
-    def describe_household
-      sys = System.new 'family'
+    class Family < Dogviz::System
+      attr_reader *%i(cat dog mum son)
+      def initialize
+        super 'family'
 
-      house = sys.container 'household'
+        house = container 'household'
 
-      cat = house.thing 'cat'
-      dog = house.thing 'dog'
+        @cat = house.thing 'cat'
+        @dog = house.thing 'dog'
 
-      mum = house.thing 'mum'
-      son = house.thing 'son'
+        @mum = house.thing 'mum'
+        @son = house.thing 'son'
 
-      mum.points_to son, name: 'parents'
-      son.points_to mum, name: 'ignores'
+        mum.points_to son, name: 'parents'
+        son.points_to mum, name: 'ignores'
 
-      cat.points_to dog, name: 'chases'
-      dog.points_to son, name: 'follows'
-      sys
+        cat.points_to dog, name: 'chases'
+        dog.points_to son, name: 'follows'
+      end
     end
 
     def test_outputs_svg_graph
 
-      sys = describe_household
+      sys = Family.new
 
       sys.output svg: outfile('svg')
 
@@ -51,18 +53,53 @@ module Tests
       assert_equal ['chases', 'follows', 'parents', 'ignores'], graph.names_of.edges
     end
 
-    def test_generates_sequence_diagram_definition
+    def test_flow_generates_precise_sequence
+      sys = System.new 'takeaway'
+      eater = sys.thing 'eater'
+      server = sys.thing 'server'
+      cook = sys.thing 'cook'
 
-      sys = describe_household
+      order = sys.flow 'order'
+      order.flows eater, 'asks for burger',
+                  server, 'passes order',
+                  cook, server, eater
 
-      sys.output sequence: outfile('seq.txt')
+      order.output sequence: outfile('seq.txt')
 
       definition = read_outfile('seq.txt')
 
-      assert_include definition, 'cat -> dog: chases'
-      assert_include definition, 'dog -> son: follows'
-      assert_include definition, 'mum -> son: parents'
-      assert_include definition, 'son -> mum: ignores'
+      assert_equal [
+                       'eater -> server: asks for burger',
+                       'server -> cook: passes order',
+                       'cook -> server:',
+                       'server -> eater:',
+                   ].join("\n"), definition
     end
+
+    def NEXT_____test_flow_generates_precise_sequence_with_action
+      sys = System.new 'takeaway'
+      eater = sys.thing 'eater'
+      server = sys.thing 'server'
+      cook = sys.thing 'cook'
+
+      order = sys.flow 'order'
+      order.flows eater, 'orders',
+                  server, 'creates order',
+                  cook.does('cooks burger'),
+                  'burger', server,
+                  'burger', eater
+
+      assert_equal [
+        'eater -> server: orders',
+        'server -> +cook: creates order',
+        'note right of cook',
+        '  cooks burger',
+        'end note',
+        'cook -> -server: burger',
+        'server -> eater: burger',
+      ].join "\n"
+    end
+
+
   end
 end

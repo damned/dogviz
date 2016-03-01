@@ -71,8 +71,15 @@ module Dogviz
     end
   end
 
+  module Flowable
+    def does(action)
+      self
+    end
+  end
+
   class Thing
     include Common
+    include Flowable
     attr_reader :parent
     attr_reader :name, :id, :pointers, :edge_heads
 
@@ -119,6 +126,13 @@ module Dogviz
       }
     end
 
+    def to_s
+      inspect
+    end
+
+    def inspect
+      "Thing:#{name}"
+    end
     private
 
     def setup_render_edge(other, options)
@@ -240,30 +254,68 @@ module Dogviz
     end
   end
 
-  require 'date'
+  class Flow
+    def initialize(sys, name)
+      @sys = sys
+      @name = name
+      @calls = []
+    end
+    def flows(*steps)
+      from = nil
+      to = nil
+      label = nil
+      steps.each do |step|
+        if from.nil?
+          from = ensure_is_thing(step)
+        elsif label.nil? && step.is_a?(String)
+          label = step
+        elsif to.nil?
+          to = ensure_is_thing(step)
+        end
+        unless to.nil?
+          calls << [from, to, label]
+          from = to
+          to = label = nil
+        end
+      end
+    end
+
+    def ensure_is_thing(step)
+      raise "Expected some thing: '#{step}' already got: #{calls}" unless step.is_a?(Thing)
+      step
+    end
+
+    def output(type_to_file)
+      type = type_to_file.keys.first
+      raise "Only support sequence, not: '#{type}'" unless type == :sequence
+      render.output(type_to_file)
+    end
+    def render
+      renderer = SequenceRenderer.new(@name)
+      calls.each do |from, to, label|
+        renderer.render_edge from, to, {label: label}
+      end
+      renderer.rendered
+    end
+    private
+    attr_reader :calls
+  end
 
   class RenderedSequence
     def initialize(lines)
       @lines = lines
     end
     def output(type_to_file)
-      text = @lines.join "\n"
+      text = @lines.map(&:strip).join "\n"
       File.write type_to_file.values.first, text
       text
     end
   end
+
   class SequenceRenderer
     attr_reader :lines
-    def initialize(title, hints)
+    def initialize(title)
       @lines = []
-    end
-
-    def render_subgraph(*args)
-
-    end
-
-    def render_node(*args)
-
     end
 
     def render_edge(from, other, options)
@@ -274,6 +326,63 @@ module Dogviz
       RenderedSequence.new lines
     end
 
+  end
+
+  require 'date'
+
+  class System
+    include Parent
+
+    attr_reader :render_hints, :title, :children, :rendered
+
+    alias :name :title
+
+    def initialize(name, hints = {splines: 'line'})
+      @children = []
+      @by_name = Registry.new
+      @render_hints = hints
+      @title = create_title(name)
+      @rendered = nil
+    end
+
+    def output(type_to_file)
+      render GraphvizRenderer
+      out = rendered.output type_to_file
+      puts "Created output: #{type_to_file} x" unless ARGV.empty?
+      out
+    end
+
+    def render(renderer_type=GraphvizRenderer)
+      return rendered unless rendered.nil?
+
+      renderer = renderer_type.new @title, render_hints
+
+      children.each {|c|
+        c.render renderer
+      }
+      children.each {|c|
+        c.render_edges renderer
+      }
+      @rendered = renderer.rendered
+    end
+
+    def rollup?
+      false
+    end
+
+    def register(name, thing)
+      @by_name.register name, thing
+    end
+
+    def flow(name)
+      Flow.new self, name
+    end
+    private
+
+    def create_title(name)
+      now = DateTime.now
+      "#{now.strftime '%H:%M'} #{name} #{now.strftime '%F'}"
+    end
   end
 
   class GraphvizRenderer
@@ -329,63 +438,6 @@ module Dogviz
       attributes.each do |key, value|
         node[key] = value
       end
-    end
-  end
-
-  class System
-    include Parent
-
-    attr_reader :render_hints, :title, :children, :rendered
-
-    alias :name :title
-
-    def initialize(name, hints = {splines: 'line'})
-      @children = []
-      @by_name = Registry.new
-      @render_hints = hints
-      @title = create_title(name)
-      @rendered = nil
-    end
-
-    def output(type_to_file)
-      type = type_to_file.keys.first
-      if type == :sequence
-        render SequenceRenderer
-      else
-        render GraphvizRenderer
-      end
-      out = rendered.output type_to_file
-      puts "Created output: #{type_to_file} x" unless ARGV.empty?
-      out
-    end
-
-    def render(renderer_type=GraphvizRenderer)
-      return rendered unless rendered.nil?
-
-      renderer = renderer_type.new @title, render_hints
-
-      children.each {|c|
-        c.render renderer
-      }
-      children.each {|c|
-        c.render_edges renderer
-      }
-      @rendered = renderer.rendered
-    end
-
-    def rollup?
-      false
-    end
-
-    def register(name, thing)
-      @by_name.register name, thing
-    end
-
-    private
-
-    def create_title(name)
-      now = DateTime.now
-      "#{now.strftime '%H:%M'} #{name} #{now.strftime '%F'}"
     end
   end
 
