@@ -267,6 +267,36 @@ class TestDogvizGraphvizRendering < Test::Unit::TestCase
     assert_equal('start->finish1 start->finish2', connections)
   end
 
+  def test_skip_thing_in_skipped_container
+    start = sys.thing('start')
+    g = sys.group('g')
+    a = g.thing('a')
+    finish = sys.thing('finish')
+
+    start.points_to(a).points_to(finish)
+
+    g.skip!
+
+    assert_equal('start->finish', connections)
+  end
+
+  def test_skip_things_in_multiple_skipped_containers
+    start = sys.thing('start')
+    g1 = sys.group('g1')
+    a1 = g1.thing('a1')
+    g2 = sys.group('g2')
+    a2 = g2.thing('a2')
+
+    finish = sys.thing('finish')
+
+    start.points_to(a1).points_to(a2).points_to(finish)
+
+    g1.skip!
+    g2.skip!
+
+    assert_equal('start->finish', connections)
+  end
+
   def test_skipped_thing_will_not_be_rendered
     sys.thing('a').skip!
 

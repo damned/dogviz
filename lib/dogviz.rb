@@ -42,6 +42,14 @@ module Dogviz
       @skip
     end
 
+    def in_skip?
+      skip? || under_skip?
+    end
+
+    def under_skip?
+      ancestors.any? &:skip?
+    end
+
     def under_rollup?
       ancestors.any? &:rollup?
     end
@@ -157,13 +165,13 @@ module Dogviz
         from = from.parent
       end
 
-      return if from.skip?
+      return if from.in_skip?
 
       return if from == self && from.in_rollup?
       return if from == other
       return if already_added_connection?(other)
 
-      if other.skip?
+      if other.in_skip?
         others = resolve_skipped_others other
       else
         others = [other]
@@ -184,7 +192,7 @@ module Dogviz
       resolved = []
       skipped.pointers.each {|pointer|
         next_in_line = pointer[:other]
-        if next_in_line.skip?
+        if next_in_line.in_skip?
           resolved += resolve_skipped_others next_in_line
         else
           resolved << next_in_line
@@ -378,6 +386,10 @@ module Dogviz
     end
 
     def rollup?
+      false
+    end
+
+    def skip?
       false
     end
 

@@ -52,6 +52,13 @@ class TestDogvizGraph < Test::Unit::TestCase
     assert_equal(true, a.in_rollup?)
   end
 
+  def test_nested_things_are_in_skip_if_under_one
+    g = sys.group('g').skip!
+    a = g.thing('a')
+
+    assert_equal(true, a.in_skip?)
+  end
+
   def test_nested_things_are_in_rollup_if_rolled_up_themselves
     a = sys.thing('a').rollup!
     assert_equal(true, a.in_rollup?)
