@@ -303,6 +303,15 @@ class TestDogvizGraphvizRendering < Test::Unit::TestCase
     assert_nil find('a')
   end
 
+  def test_skipped_group_of_things_will_not_be_rendered
+    g = sys.group('g').skip!
+    g.thing('a')
+    g.thing('b')
+
+    assert_nil find('g_a')
+    assert_nil find('g_b')
+  end
+
   def test_find_thing
     sys.group('top').thing('needle')
 

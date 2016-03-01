@@ -132,7 +132,7 @@ module Dogviz
     end
 
     def render(renderer)
-      do_render_node(renderer) unless in_rollup? || skip?
+      do_render_node(renderer) unless in_rollup? || in_skip?
     end
 
     def render_edges(renderer)
