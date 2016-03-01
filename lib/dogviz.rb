@@ -357,7 +357,7 @@ module Dogviz
     def output(*args)
       render
       out = graph.output *args
-      puts "Created output: #{args.join ' '}"
+      puts "Created output: #{args.join ' '}" if run_from_command_line?
       out
     end
 
@@ -390,6 +390,10 @@ module Dogviz
     def create_title(name)
       now = DateTime.now
       "#{now.strftime '%H:%M'} #{name} #{now.strftime '%F'}"
+    end
+
+    def run_from_command_line?
+      !ARGV.empty?
     end
   end
 
