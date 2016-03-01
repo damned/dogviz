@@ -8,6 +8,9 @@ module Dogviz
       parts += name.split /\s/
       parts.join '_'
     end
+    def root
+      ancestors.last
+    end
     def ancestors
       ancestors = [parent]
       loop do
