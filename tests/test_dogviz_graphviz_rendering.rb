@@ -267,6 +267,12 @@ class TestDogvizGraphvizRendering < Test::Unit::TestCase
     assert_equal('start->finish1 start->finish2', connections)
   end
 
+  def test_skipped_thing_will_not_be_rendered
+    sys.thing('a').skip!
+
+    assert_nil find('a')
+  end
+
   def test_find_thing
     sys.group('top').thing('needle')
 
