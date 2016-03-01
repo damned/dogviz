@@ -182,19 +182,68 @@ class TestDogvizGraphvizRendering < Test::Unit::TestCase
     assert_equal('a->c', connections)
   end
 
-  def NEXT____test_skip_one_thing_with_multiple_onward_connections
+  def test_skip_one_thing_with_multiple_onward_connections
     a = sys.thing('a')
     b = sys.thing('b')
-    c = sys.thing('c')
-    d = sys.thing('d')
+    out1 = sys.thing('out1')
+    out2 = sys.thing('out2')
 
     a.points_to b
-    b.points_to_all c, d
+    b.points_to_all out1, out2
 
     b.skip!
 
-    assert_equal('a->c a->d', connections)
+    assert_equal('a->out1 a->out2', connections)
   end
+
+  def test_skip_one_thing_with_multiple_inward_connections
+    in1 = sys.thing('in1')
+    in2 = sys.thing('in2')
+    skipper = sys.thing('skipper')
+    out = sys.thing('out')
+
+    in1.points_to skipper
+    in2.points_to skipper
+    skipper.points_to out
+
+    skipper.skip!
+
+    assert_equal('in1->out in2->out', connections)
+  end
+
+  def test_skip_one_thing_with_multiple_inward_and_outward_connections
+    in1 = sys.thing('in1')
+    in2 = sys.thing('in2')
+    skipper = sys.thing('skipper')
+    out1 = sys.thing('out1')
+    out2 = sys.thing('out2')
+
+    in1.points_to skipper
+    in2.points_to skipper
+    skipper.points_to out1
+    skipper.points_to out2
+
+    skipper.skip!
+
+    assert_equal('in1->out1 in1->out2 in2->out1 in2->out2', connections)
+  end
+
+  def NEXT_test_skip_multiple_things_with_one_onward_connection
+    start = sys.thing('start')
+    skip1 = sys.thing('skip1')
+    skip2 = sys.thing('skip2')
+    skip3 = sys.thing('skip3')
+    finish = sys.thing('finish')
+
+    start.points_to(skip1).points_to(skip2).points_to(skip3).points_to finish
+
+    skip1.skip!
+    skip2.skip!
+    skip3.skip!
+
+    assert_equal('start->finish', connections)
+  end
+
 
   def test_find_thing
     sys.group('top').thing('needle')

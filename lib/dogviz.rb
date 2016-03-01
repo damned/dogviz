@@ -117,6 +117,7 @@ module Dogviz
 
     def points_to(other, options = {})
       setup_render_edge(other, options)
+      other
     end
 
     def render(renderer)
@@ -160,20 +161,24 @@ module Dogviz
       return if already_added_connection?(other)
 
       if other.skip?
-        other = resolve_skipped_other other
+        others = resolve_skipped_others other
+      else
+        others = [other]
       end
 
-      edge_heads << other
-      render_options = pointer[:options]
-      renderer.render_edge(from, other, render_options)
+      others.each do |other|
+        edge_heads << other
+        render_options = pointer[:options]
+        renderer.render_edge(from, other, render_options)
+      end
     end
 
     def already_added_connection?(other)
       edge_heads.include? other
     end
 
-    def resolve_skipped_other(other)
-      other = other.pointers.first[:other]
+    def resolve_skipped_others(other)
+      other.pointers.map {|pointer| pointer[:other]}
     end
   end
 
