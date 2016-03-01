@@ -255,8 +255,8 @@ class TestDogvizGraphvizRendering < Test::Unit::TestCase
     finish2 = sys.thing('finish2')
 
     start.points_to(skip1).points_to(skip2)
-    skip2.points_to(skip3).points_to(skipX).points_to finish1
-    skip2.points_to(skipY).points_to finish2
+      skip2.points_to(skip3).points_to(skipX).points_to finish1
+      skip2.points_to(skipY).points_to finish2
 
     skip1.skip!
     skip2.skip!
