@@ -169,6 +169,33 @@ class TestDogvizGraphvizRendering < Test::Unit::TestCase
     assert_equal('entry->group group->exit', connections)
   end
 
+  def test_skip_one_thing_with_one_onward_connection
+    a = sys.thing('a')
+    b = sys.thing('b')
+    c = sys.thing('c')
+
+    a.points_to b
+    b.points_to c
+
+    b.skip!
+
+    assert_equal('a->c', connections)
+  end
+
+  def NEXT____test_skip_one_thing_with_multiple_onward_connections
+    a = sys.thing('a')
+    b = sys.thing('b')
+    c = sys.thing('c')
+    d = sys.thing('d')
+
+    a.points_to b
+    b.points_to_all c, d
+
+    b.skip!
+
+    assert_equal('a->c a->d', connections)
+  end
+
   def test_find_thing
     sys.group('top').thing('needle')
 

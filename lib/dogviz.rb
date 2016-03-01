@@ -30,6 +30,15 @@ module Dogviz
       @rollup = true
       self
     end
+    def skip!
+      @skip = true
+      self
+    end
+
+    def skip?
+      @skip
+    end
+
     def under_rollup?
       ancestors.any? &:rollup?
     end
@@ -82,6 +91,7 @@ module Dogviz
       @id = create_id(name, parent)
       @pointers = []
       @rollup = false
+      @skip = false
       @edge_heads = []
 
       rollup! if options[:rollup]
@@ -143,14 +153,27 @@ module Dogviz
         from = from.parent
       end
 
-      return if from == self && from.in_rollup?
+      return if from.skip?
 
+      return if from == self && from.in_rollup?
       return if from == other
-      return if edge_heads.include? other
+      return if already_added_connection?(other)
+
+      if other.skip?
+        other = resolve_skipped_other other
+      end
 
       edge_heads << other
       render_options = pointer[:options]
       renderer.render_edge(from, other, render_options)
+    end
+
+    def already_added_connection?(other)
+      edge_heads.include? other
+    end
+
+    def resolve_skipped_other(other)
+      other = other.pointers.first[:other]
     end
   end
 
@@ -166,6 +189,7 @@ module Dogviz
       @parent = parent
       @name = name
       @id = create_id(name, parent)
+      @skip = false
 
       init_rollup options
 
