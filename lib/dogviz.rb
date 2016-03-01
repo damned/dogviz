@@ -177,8 +177,17 @@ module Dogviz
       edge_heads.include? other
     end
 
-    def resolve_skipped_others(other)
-      other.pointers.map {|pointer| pointer[:other]}
+    def resolve_skipped_others(skipped)
+      resolved = []
+      skipped.pointers.each {|pointer|
+        next_in_line = pointer[:other]
+        if next_in_line.skip?
+          resolved += resolve_skipped_others next_in_line
+        else
+          resolved << next_in_line
+        end
+      }
+      resolved
     end
   end
 
