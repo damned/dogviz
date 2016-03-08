@@ -210,7 +210,7 @@ module Dogviz
 
     def initialize(parent, name, options = {})
       @children = []
-      @by_name = Registry.new
+      @by_name = Registry.new name
       @parent = parent
       @name = name
       @id = create_id(name, parent)
@@ -356,7 +356,7 @@ module Dogviz
 
     def initialize(name, hints = {splines: 'line'})
       @children = []
-      @by_name = Registry.new
+      @by_name = Registry.new name
       @render_hints = hints
       @title = create_title(name)
       @rendered = false
@@ -410,19 +410,23 @@ module Dogviz
   end
 
   class LookupError < StandardError
+    def initialize(context, message)
+      super "(in context '#{context}') #{message}"
+    end
   end
   class MissingMatchBlockError < LookupError
-    def initialize
-      super 'need to provide match block'
+    def initialize(context)
+      super context, 'need to provide match block'
     end
   end
   class DuplicateLookupError < LookupError
-    def initialize(name)
-      super "More than one object registered of name '#{name}' - you'll need to search in a narrower context"
+    def initialize(context, name)
+      super context, "More than one object registered of name '#{name}' - you'll need to search in a narrower context"
     end
   end
   class Registry
-    def initialize
+    def initialize(context)
+      @context = context
       @by_name = {}
       @all = []
     end
@@ -430,25 +434,25 @@ module Dogviz
     def register(name, thing)
       @all << thing
       if @by_name.has_key?(name)
-        @by_name[name] = DuplicateLookupError.new name
+        @by_name[name] = DuplicateLookupError.new @context, name
       else
         @by_name[name] = thing
       end
     end
 
     def find(&matcher)
-      raise LookupError.new("need to provide match block") unless block_given?
+      raise LookupError.new(@context, "need to provide match block") unless block_given?
       @all.find &matcher
     end
 
     def find_all(&matcher)
-      raise MissingMatchBlockError.new unless block_given?
+      raise MissingMatchBlockError.new(@context) unless block_given?
       @all.select &matcher
     end
 
     def lookup(name)
       found = @by_name[name]
-      raise LookupError.new("could not find '#{name}'") if found.nil?
+      raise LookupError.new(@context, "could not find '#{name}'") if found.nil?
       raise found if found.is_a?(Exception)
       found
     end

@@ -74,6 +74,35 @@ class TestDogvizGraph < Test::Unit::TestCase
     })
   end
 
+  def test_find_thing
+    sys.group('top').thing('needle')
+
+    assert_equal('needle', sys.find('needle').name)
+  end
+
+  def test_find_duplicate_show_blow_up
+    sys.group('A').thing('needle')
+    sys.group('B').thing('needle')
+
+    assert_raise DuplicateLookupError do
+      sys.find('needle').name
+    end
+  end
+
+  def test_find_nothing_show_blow_up
+    sys.group('A').thing('needle')
+
+    assert_raise LookupError do
+      sys.find('not a needle')
+    end
+  end
+
+  def test_find_container
+    inner = sys.group('g').group('nested group').group('inner')
+
+    assert_equal(inner, sys.find('inner'))
+  end
+
   def test_find_all
     group = sys.group('g')
     nested_group = group.group('nested group')

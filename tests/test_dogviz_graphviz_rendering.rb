@@ -312,28 +312,6 @@ class TestDogvizGraphvizRendering < Test::Unit::TestCase
     assert_nil find('g_b')
   end
 
-  def test_find_thing
-    sys.group('top').thing('needle')
-
-    assert_equal('needle', sys.find('needle').name)
-  end
-
-  def test_find_duplicate_show_blow_up
-    sys.group('A').thing('needle')
-    sys.group('B').thing('needle')
-
-    assert_raise DuplicateLookupError do
-      sys.find('needle').name
-    end
-  end
-
-  def test_find_nothing_show_blow_up
-    sys.group('A').thing('needle')
-
-    assert_raise LookupError do
-      sys.find('not a needle')
-    end
-  end
 
   def test_doclinks_create_links
     a = sys.thing('a')
