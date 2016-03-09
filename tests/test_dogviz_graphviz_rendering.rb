@@ -321,6 +321,14 @@ class TestDogvizGraphvizRendering < Test::Unit::TestCase
     assert_equal(doc_url, find('a')['URL'].to_ruby)
   end
 
+  def test_info_rendered_into_label
+    a = sys.thing('a')
+    a.info(ip: '1.1.1.1')
+
+    assert_equal('a', a.name)
+    assert_equal('"a\nip: 1.1.1.1"', find('a')['label'].to_ruby)
+  end
+
   private
 
   def subgraph_ids

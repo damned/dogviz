@@ -19,8 +19,19 @@ module Dogviz
       end
       ancestors
     end
+    def info(fields)
+      @info.merge! fields
+      setup_render_attributes(label: label_with_info)
+    end
     def doclink(url)
       setup_render_attributes(URL: url)
+    end
+    def label_with_info
+      lines = [ name ]
+      @info.each {|k, v|
+        lines << "#{k}: #{v}"
+      }
+      lines.join "\n"
     end
     def setup_render_attributes(attributes)
       @attributes = {} if @attributes.nil?
@@ -103,6 +114,7 @@ module Dogviz
       @pointers = []
       @rollup = false
       @skip = false
+      @info = {}
       @edge_heads = []
 
       rollup! if options[:rollup]
@@ -215,6 +227,7 @@ module Dogviz
       @name = name
       @id = create_id(name, parent)
       @skip = false
+      @info = {}
 
       init_rollup options
 
