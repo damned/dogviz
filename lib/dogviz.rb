@@ -15,6 +15,21 @@ module Dogviz
       Process.new(self, action)
     end
   end
+  module Nominator
+    def nominate(names_to_nominees)
+      names_to_nominees.each {|name, nominee|
+        self.class.send(:define_method, name) do
+          nominee
+        end
+      }
+    end
+    def nominate_from(nominee_nominator, *nominee_names)
+      nominee_names.each {|name|
+        accessor_sym = name.to_s.to_sym
+        nominate accessor_sym => nominee_nominator.send(accessor_sym)
+      }
+    end
+  end
   module Common
     def create_id(name, parent)
       parts = []
@@ -86,13 +101,6 @@ module Dogviz
     end
   end
   module Parent
-    def nominate(names_to_values)
-      names_to_values.each {|name, value|
-        self.class.send(:define_method, name) do
-          value
-        end
-      }
-    end
     def find_all(&matcher)
       raise MissingMatchBlockError.new unless block_given?
       @by_name.find_all &matcher
@@ -125,6 +133,7 @@ module Dogviz
 
   class Thing
     include Common
+    include Nominator
     include Flowable
     attr_reader :parent
     attr_reader :name, :id, :pointers, :edge_heads
@@ -238,6 +247,7 @@ module Dogviz
 
   class Container
     include Common
+    include Nominator
     include Parent
     attr_reader :parent
     attr_reader :name, :id, :node, :render_id, :render_type, :render_options, :children

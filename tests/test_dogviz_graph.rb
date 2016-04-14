@@ -127,6 +127,19 @@ class TestDogvizGraph < Test::Unit::TestCase
     assert_equal dog, group.dog
   end
 
+  def test_nominate_from_delegates_multiple_accessors
+    outer = sys.group('outer')
+    nested = outer.group('nested')
+    a = nested.thing('a')
+    b = nested.thing('b')
+    nested.nominate a: a, b: b
+
+    outer.nominate_from nested, 'a', :b
+
+    assert_equal a, outer.a
+    assert_equal b, outer.b
+  end
+
   def test_root
     group = sys.group('g')
     nested_group = group.group('nested group')
