@@ -1,6 +1,20 @@
 require 'ruby-graphviz'
 
 module Dogviz
+  class Process
+    def initialize(processor, description)
+      @processor = processor
+      @description = description
+    end
+    def name
+      @processor.name
+    end
+  end
+  module Flowable
+    def does(action)
+      Process.new(self, action)
+    end
+  end
   module Common
     def create_id(name, parent)
       parts = []
@@ -104,6 +118,7 @@ module Dogviz
 
   class Thing
     include Common
+    include Flowable
     attr_reader :parent
     attr_reader :name, :id, :pointers, :edge_heads
 
@@ -360,6 +375,109 @@ module Dogviz
     end
   end
 
+  class Flow
+    def initialize(sys, name)
+      @sys = sys
+      @name = name
+      @calls = []
+    end
+
+    def flows(*steps)
+      from = nil
+      to = nil
+      label = nil
+      steps.each do |step|
+        if from.nil?
+          from = ensure_is_thing(step)
+        elsif label.nil? && step.is_a?(String)
+          label = step
+        elsif to.nil?
+          to = ensure_is_thing(step)
+        end
+        unless to.nil?
+          calls << [from, to, label]
+          from = to
+          to = label = nil
+        end
+      end
+    end
+
+    def ensure_is_thing(step)
+      raise "Expected some thing or process: '#{step}' already got: #{calls}" unless step.is_a?(Thing) || step.is_a?(Process)
+      step
+    end
+
+    def output(type_to_file)
+      type = type_to_file.keys.first
+      raise "Only support sequence, not: '#{type}'" unless type == :sequence
+      render.output(type_to_file)
+    end
+
+    def render
+      renderer = SequenceRenderer.new(@name)
+      calls.each do |from, to, label|
+        renderer.render_edge from, to, {label: label}
+      end
+      renderer.rendered
+    end
+    private
+    attr_reader :calls
+  end
+
+
+  class RenderedSequence
+    def initialize(lines)
+      @lines = lines
+    end
+    def output(type_to_file)
+      text = @lines.map(&:strip).join "\n"
+      File.write type_to_file.values.first, text
+      text
+    end
+  end
+
+  class SequenceRenderer
+    attr_reader :lines
+    def initialize(title)
+      @lines = []
+    end
+
+    def render_edge(from, other, options)
+
+      detail = options[:label]
+      receiver_label = other.name
+      sender_label = from.name
+      if other.is_a?(Process)
+        receiver_label = process_start_label(receiver_label)
+        detail = process_annotations(detail)
+      elsif from.is_a?(Process)
+        receiver_label = process_end_label(receiver_label)
+      end
+      lines << "#{sender_label} -> #{receiver_label}: #{detail}"
+    end
+
+    def rendered
+      RenderedSequence.new lines
+    end
+
+    private
+
+    def process_start_label(receiver_label)
+      "+#{receiver_label}"
+    end
+
+    def process_end_label(receiver_label)
+      "-#{receiver_label}"
+    end
+
+    def process_annotations(detail)
+      detail = [detail,
+                'note right of cook',
+                '  cooks burger',
+                'end note'].join("\n")
+    end
+  end
+
   class System
     include Parent
 
@@ -380,6 +498,10 @@ module Dogviz
       out = graph.output *args
       puts "Created output: #{args.join ' '}" if run_from_command_line?
       out
+    end
+
+    def flow(name)
+      Flow.new self, name
     end
 
     def render(type=:graphviz)
