@@ -114,6 +114,19 @@ class TestDogvizGraph < Test::Unit::TestCase
     })
   end
 
+  class Dog
+  end
+  def test_nominate_elevates_values_as_method_on_group
+    group = sys.group('g')
+
+    dog = Dog.new
+
+    group.nominate foobar: :any_value, dog: dog
+
+    assert_equal :any_value, group.foobar
+    assert_equal dog, group.dog
+  end
+
   def test_root
     group = sys.group('g')
     nested_group = group.group('nested group')

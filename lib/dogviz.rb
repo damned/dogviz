@@ -86,6 +86,13 @@ module Dogviz
     end
   end
   module Parent
+    def nominate(names_to_values)
+      names_to_values.each {|name, value|
+        self.class.send(:define_method, name) do
+          value
+        end
+      }
+    end
     def find_all(&matcher)
       raise MissingMatchBlockError.new unless block_given?
       @by_name.find_all &matcher
