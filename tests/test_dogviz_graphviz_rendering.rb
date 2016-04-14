@@ -329,6 +329,24 @@ class TestDogvizGraphvizRendering < Test::Unit::TestCase
     assert_equal('"a\nip: 1.1.1.1"', find('a')['label'].to_ruby)
   end
 
+  def test_nominate_reduces_need_to_find_when_piecing_together_chunks_built_in_other_methods
+    def build_haystack
+      haystack = sys.group 'haystack'
+      needle = haystack.group('nested').group('hidden away').thing('needle')
+
+      haystack.nominate needle: needle
+      haystack
+    end
+
+    haystack = build_haystack
+
+    thread = sys.thing 'thread'
+    thread.points_to haystack.needle
+
+    assert_equal('thread->haystack_nested_hidden_away_needle', connections)
+  end
+
+
   private
 
   def subgraph_ids
