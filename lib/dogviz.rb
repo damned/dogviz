@@ -12,6 +12,7 @@ module Dogviz
     def description
       @description
     end
+    attr_reader :processor
   end
   module Flowable
     def does(action)
@@ -402,6 +403,12 @@ module Dogviz
       @calls = []
     end
 
+    def make_connections
+      calls.each {|from, to, label|
+        thing_of(from).points_to thing_of(to), label: label
+      }
+    end
+
     def flows(*steps)
       from = nil
       to = nil
@@ -440,8 +447,15 @@ module Dogviz
       end
       renderer.rendered
     end
+
     private
-    attr_reader :calls
+
+    attr_reader :calls, :sys
+
+    def thing_of(it)
+      return it.processor if it.is_a?(Process)
+      it
+    end
   end
 
 
