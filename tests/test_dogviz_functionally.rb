@@ -56,10 +56,10 @@ module Tests
       sys = System.new 'takeaway'
       eater = sys.thing 'eater'
       server = sys.thing 'server'
-      cook = sys.thing 'cook'
+      cook = sys.thing 'chef'
 
       order = sys.flow 'order'
-      order.flows eater, 'asks for burger',
+      order.flows eater, 'gimme burger',
                   server, 'passes order',
                   cook, server, eater
 
@@ -68,9 +68,9 @@ module Tests
       definition = read_outfile('seq.txt')
 
       assert_equal [
-                       'eater -> server: asks for burger',
-                       'server -> cook: passes order',
-                       'cook -> server:',
+                       'eater -> server: gimme burger',
+                       'server -> chef: passes order',
+                       'chef -> server:',
                        'server -> eater:',
                    ].join("\n"), definition
     end

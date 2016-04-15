@@ -9,6 +9,9 @@ module Dogviz
     def name
       @processor.name
     end
+    def description
+      @description
+    end
   end
   module Flowable
     def does(action)
@@ -465,8 +468,8 @@ module Dogviz
       receiver_label = other.name
       sender_label = from.name
       if other.is_a?(Process)
+        detail = process_annotations(detail, sender_label, receiver_label, other.description)
         receiver_label = process_start_label(receiver_label)
-        detail = process_annotations(detail)
       elsif from.is_a?(Process)
         receiver_label = process_end_label(receiver_label)
       end
@@ -487,10 +490,10 @@ module Dogviz
       "-#{receiver_label}"
     end
 
-    def process_annotations(detail)
+    def process_annotations(detail, sender, receiver, process_description)
       detail = [detail,
-                'note right of cook',
-                '  cooks burger',
+                "note right of #{receiver}",
+                "  #{process_description}",
                 'end note'].join("\n")
     end
   end
