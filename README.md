@@ -5,8 +5,10 @@ A domain object graph (**DOG**) visualisation built on [ruby-graphviz](https://g
 
 ## Usage
 
+```
 gem install dogviz
 ruby examples/dogfood.rb
+```
 
 ## Example
 
