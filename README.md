@@ -1,5 +1,5 @@
 # dogviz
-A domain object graph (DOG) visualisation built initially on graphviz
+A domain object graph (**DOG**) visualisation built initially on graphviz
 
 ## Features
 
@@ -15,11 +15,13 @@ Here is the diagram rendered by running the [dogfood example](examples/dogfood.r
 
 ![generated graph from examples/dogfood.rb](/examples/dogviz-generated.jpg "Generated diagram")
 
-Use the simple DSL to build your domain graph of things which can be in containers, which in turn can be nested.
+Use the simple DSL to build your domain graph of *things* which can be in *containers*, which in turn can be nested.
 
-Things can point to other things.
+*Things* can point to other *things*.
 
-Because this is ruby you can use known refactorings for DOG construction: extract methods, push into classes etc.
+You can **rollup** *containers* before rendering so that a single **DOG** can be used to render simplified views.
+
+Because this is ruby you can use known refactorings for **DOG** construction: extract methods, push into classes etc.
 
 No external DSL rubbish here! ;)
 
