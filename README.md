@@ -5,9 +5,8 @@ A domain object graph (**DOG**) visualisation built on [ruby-graphviz](https://g
 
 ## Usage
 
-bundle install
-
-bundle exec ruby examples/dogfood.rb
+gem install dogviz
+ruby examples/dogfood.rb
 
 ## Example
 
@@ -64,7 +63,6 @@ def create_dog(classes: true)
   domain_object_graph
 end
 
-create_dog().output svg: 'examples/dogviz-generated.svg'
 create_dog().output jpg: 'examples/dogviz-generated.jpg'
 
 dog_rolled_up = create_dog(classes: false)
