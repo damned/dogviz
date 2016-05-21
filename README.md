@@ -5,7 +5,7 @@ bundle install
 
 bundle exec ruby examples/dogfood.rb
 
-![generated graph from examples/dogfood.rb](/examples/dogviz-generated.svg?raw=true)
+![generated graph from examples/dogfood.rb](/examples/dogviz-generated.svg)
 
 ```ruby
 require 'dogviz'
