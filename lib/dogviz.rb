@@ -514,6 +514,7 @@ module Dogviz
 
   class System
     include Parent
+    include Nominator
 
     attr_reader :render_hints, :title, :children, :graph
 
