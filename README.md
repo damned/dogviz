@@ -19,8 +19,6 @@ Use the simple DSL to build your domain graph of *things* which can be in *conta
 
 *Things* can point to other *things*.
 
-You can **rollup** *containers* before rendering so that a single **DOG** can be used to render simplified views.
-
 Because this is ruby you can use known refactorings for **DOG** construction: extract methods, push into classes etc.
 
 No external DSL rubbish here! ;)
@@ -37,10 +35,12 @@ def create_classes_description(root)
   container.points_to container, name: 'contains'
   system.points_to thing, name: 'contains'
   system.points_to container, name: 'contains'
+
+  classes
 end
 
-def create_nested_container_example(root, name:)
-  example = root.container name
+def create_nested_container_example(root)
+  example = root.container 'example DOG'
   thing = example.thing 'a thing outside a container'
   container = example.container 'a container'
   container_thing = container.thing 'a thing in a container'
@@ -53,16 +53,33 @@ def create_nested_container_example(root, name:)
   nested_container
 end
 
-domain_object_graph = Dogviz::System.new 'dogviz'
+def create_dog(classes: true)
+  domain_object_graph = Dogviz::System.new 'dogviz'
 
-create_classes_description(domain_object_graph)
-usage = domain_object_graph.group('usage')
+  create_classes_description(domain_object_graph) if classes
+  usage = domain_object_graph.group('usage')
 
-create_nested_container_example(usage, name: 'example DOG')
-create_nested_container_example(usage, name: '...with a rolled up container').rollup!
+  create_nested_container_example(usage)
 
-domain_object_graph.output svg: 'examples/dogviz-generated.svg'
-domain_object_graph.output jpg: 'examples/dogviz-generated.jpg'
+  domain_object_graph
+end
+
+create_dog().output svg: 'examples/dogviz-generated.svg'
+create_dog().output jpg: 'examples/dogviz-generated.jpg'
+
+dog_rolled_up = create_dog(classes: false)
+dog_rolled_up.find('a nested container').rollup!
+dog_rolled_up.output jpg: 'examples/dogviz-rolled-up-generated.jpg'
 ```
+
+## Rolling up
+
+You can **rollup!** *containers* before rendering so that a single **DOG** can be used to render simplified views.
+
+The following output from above example shows how diagram can be simplified by *rolling up* the nested container.
+Note that pointers to contained things are handled gracefully (i think :/).
+
+![generated rolled up graph from examples/dogfood.rb](/examples/dogviz-rolled-up-generated.jpg "Generated rolled up diagram")
+
 
 
