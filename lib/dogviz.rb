@@ -574,7 +574,7 @@ module Dogviz
     end
 
     def run_from_command_line?
-      !ARGV.empty?
+      $stdout.isatty
     end
   end
 
