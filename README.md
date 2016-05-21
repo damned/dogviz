@@ -77,7 +77,7 @@ dog_rolled_up.output jpg: 'examples/dogviz-rolled-up-generated.jpg'
 You can **rollup!** *containers* before rendering so that a single **DOG** can be used to render simplified views.
 
 The following output from above example shows how diagram can be simplified by *rolling up* the nested container.
-Note that pointers to contained things are handled gracefully (i think :/).
+Note that pointers to/from contained things are handled gracefully ([i think](https://github.com/damned/dogviz/blob/master/tests/test_dogviz_graphviz_rendering.rb#L97) :/).
 
 ![generated rolled up graph from examples/dogfood.rb](/examples/dogviz-rolled-up-generated.jpg "Generated rolled up diagram")
 
