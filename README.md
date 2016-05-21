@@ -1,5 +1,5 @@
 # dogviz
-A domain object graph (**DOG**) visualisation built initially on graphviz
+A domain object graph (**DOG**) visualisation built on [ruby-graphviz](https://github.com/glejeune/Ruby-Graphviz) and hence [Graphviz](http://www.graphviz.org/)
 
 ## Features
 
