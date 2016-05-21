@@ -100,4 +100,55 @@ x.points_to c.a
 x.points_to c.b
 ```
 
+### #doclink
 
+Add a documentation link to *thing* so that url can be visited clicking on the *thing* an svg output.
+
+```ruby
+thing.doclink("https://github.com/")
+```
+
+### splines
+
+Splines can be turned on or off by providing flag to System.new
+
+```ruby
+System.new 'dog', splines: false
+```
+
+### Extendable classes
+
+Using standard ruby extension of **System**, **Container** and **Thing** classes, you can easily use:
+ - language specific to your domain 
+ - styling specific to your types
+ 
+```ruby
+module Creators
+  def box(name, options={})
+    add Box.new(self, name, options)
+  end
+end
+class WebsiteSystem < System
+  include Creators
+end
+class Box < Container
+  def initialize(parent, name, options={})
+    super parent, name, {style: 'filled', color: '#ffaaaa'}.merge(options)
+  end
+  def process(name)
+    add Process.new self, name
+  end
+end
+class Process < Thing
+  def initialize(parent, name)
+    super parent, name, style: 'filled'
+  end
+  def calls(callee, options={})
+    points_to callee, options
+  end
+end
+
+sys = WebsiteSystem.new 'website'
+box = sys.box('website box')
+box.process('nginx').calls(box.process('app'))
+```
