@@ -21,7 +21,6 @@ def create_classes_description(root)
   system.points_to container, name: 'contains'
 end
 
-
 def create_nested_container_example(root, name:)
   example = root.container name
   thing = example.thing 'a thing outside a container'
