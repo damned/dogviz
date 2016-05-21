@@ -45,6 +45,7 @@ create_nested_container_example(usage, name: 'example DOG')
 create_nested_container_example(usage, name: '...with a rolled up container').rollup!
 
 domain_object_graph.output svg: 'examples/dogviz-generated.svg'
+domain_object_graph.output jpg: 'examples/dogviz-generated.jpg'
 ```
 
 
