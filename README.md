@@ -1,8 +1,6 @@
 # dogviz
 A domain object graph (**DOG**) visualisation built on [ruby-graphviz](https://github.com/glejeune/Ruby-Graphviz) and hence [Graphviz](http://www.graphviz.org/)
 
-## Features
-
 ## Usage
 
 ```
@@ -81,5 +79,25 @@ Note that pointers to/from contained things are handled gracefully ([i think](ht
 
 ![generated rolled up graph from examples/dogfood.rb](/examples/dogviz-rolled-up-generated.jpg "Generated rolled up diagram")
 
+## Other Features
+
+### #nominate
+*Containers* can **#nominate** a thing so that it is referenceable via a method call on container.
+
+It's useful if some code somewhere builds a container with multiple thing entry points you might want to point to
+
+```ruby
+def create_c(sys)
+  c = sys.container('c')
+  c.nominate a: c.thing('a')
+  c.nominate b: c.thing('b')
+  c
+end
+
+c = create_c(sys)
+x = sys.thing('x')
+x.points_to c.a
+x.points_to c.b
+```
 
 
