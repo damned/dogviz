@@ -103,6 +103,11 @@ module Dogviz
     def on_top_rollup?
       rollup? && !under_rollup?
     end
+    def inherited_render_options
+      inherited = {}
+      inherited[:fontname] = parent.render_options[:fontname] if parent.render_options.include?(:fontname)
+      inherited
+    end
   end
   module Parent
     def find_all(&matcher)
@@ -135,12 +140,38 @@ module Dogviz
     end
   end
 
+  class Colorizer
+    def initialize
+      @i = 0
+      @colors = %w(#9e0142
+#d53e4f
+#e45d33
+#ed9e61
+#762a83
+#9970ab
+#c6f578
+#abdda4
+#66c2a5
+#3288bd
+#5e4fa2)
+    end
+
+    def next
+      color = @colors[@i]
+      @i += 1
+      @i = 0 unless @i < @colors.length
+      color
+    end
+  end
+
   class Thing
     include Common
     include Nominator
     include Flowable
     attr_reader :parent
     attr_reader :name, :id, :pointers, :edge_heads
+
+    @@colorizer = Colorizer.new
 
     def initialize(parent, name, options = {})
       @parent = parent
@@ -156,15 +187,9 @@ module Dogviz
       options.delete(:rollup)
 
       @render_options = options
-      setup_render_attributes label: name
+      setup_render_attributes({label: name}.merge inherited_render_options)
 
       parent.register name, self
-    end
-
-    def do_render_node(renderer)
-      render_options = @render_options
-      attributes = @attributes
-      renderer.render_node(parent, id, render_options, attributes)
     end
 
     def points_to_all(*others)
@@ -180,7 +205,7 @@ module Dogviz
 
     def render(renderer)
       do_render_node(renderer) unless in_rollup? || in_skip?
-    end
+      end
 
     def render_edges(renderer)
       pointers.each {|p|
@@ -190,14 +215,29 @@ module Dogviz
 
     private
 
+    def do_render_node(renderer)
+      render_options = @render_options
+      attributes = @attributes
+      renderer.render_node(parent, id, render_options, attributes)
+    end
+
     def setup_render_edge(other, options)
       pointers << {
           other: other,
           options: {
-              label: options[:name],
+              xlabel: options[:name],
               style: options[:style]
-          }
+          }.merge(inherited_render_options)
       }
+
+      if options[:colorize] || root.colorize_edges?
+        edge_color = next_colorizer_color
+        pointers.last[:options].merge!({
+          color: edge_color,
+          fontcolor: edge_color
+        })
+      end
+
     end
 
     def render_pointer(pointer, renderer)
@@ -247,6 +287,10 @@ module Dogviz
       }
       resolved
     end
+
+    def next_colorizer_color
+      @@colorizer.next
+    end
   end
 
   class Container
@@ -269,7 +313,7 @@ module Dogviz
 
       setup_render_attributes label: name
 
-      @render_options = options
+      @render_options = options.merge inherited_render_options
 
       parent.register name, self
     end
@@ -519,10 +563,12 @@ module Dogviz
     attr_reader :render_hints, :title, :children, :graph
 
     alias :name :title
+    alias :render_options :render_hints
 
     def initialize(name, hints = {splines: 'line'})
       @children = []
       @by_name = Registry.new name
+      @non_render_hints = remove_dogviz_hints!(hints)
       @render_hints = hints
       @title = create_title(name)
       @rendered = false
@@ -567,7 +613,19 @@ module Dogviz
       @by_name.register name, thing
     end
 
+    def colorize_edges?
+      @non_render_hints[:colorize_edges]
+    end
+
     private
+
+    def remove_dogviz_hints!(hints)
+      dogviz_only_hints = {}
+      %i(colorize_edges).each {|k|
+        dogviz_only_hints[k] = hints.delete k
+      }
+      dogviz_only_hints
+    end
 
     def create_title(name)
       now = DateTime.now
