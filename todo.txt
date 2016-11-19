@@ -1,0 +1,7 @@
+* render generic output (sigma.js json) for ingestion -> unity
+* move from inheritance -> better encaps
+* sort out fore vs back color
+* move out any graphviz specifics from main models, e.g. colorize
+* clean up init options + render attributes - not v clear / overlapping
+* separate style from domain-specific elements (can use same view-manipulation selection mechanisms)
+* make style attributes well defined -> less leaky + explicit graphviz passthroughs
