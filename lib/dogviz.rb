@@ -440,6 +440,58 @@ module Dogviz
     end
   end
 
+  require 'json'
+  class SigmaGraphHash < Hash
+    def initialize(hash)
+      hash.each{|k,v|
+        self[k] = v
+      }
+    end
+    def output(type_to_filename)
+      raise StandardError.new('must provide hash (json: somejsonfilename.json)') unless type_to_filename.is_a?(Hash)
+      filename = get_json_filename(type_to_filename)
+      File.write filename, to_json
+    end
+
+    private
+
+    def get_json_filename(type_to_filename)
+      type = type_to_filename.keys.first
+      raise StandardError.new('json output only supported') unless type == :json
+      type_to_filename[type]
+    end
+  end
+
+  class SigmaRenderer
+    def initialize(title)
+      @title = title
+      @nodes = []
+      @edges = []
+    end
+
+    def graph
+      SigmaGraphHash.new(nodes: nodes, edges: edges)
+    end
+
+    def render_node(parent, id, render_options, attributes)
+      @nodes << { id: id, label: id }
+    end
+
+    def render_edge(from, to, options)
+      @edges << {
+          id: "#{from.id}->#{to.id}",
+          label: "#{from.id}->#{to.id}",
+          source: from.id,
+          target: to.id
+      }
+    end
+
+    private
+
+    attr_reader :nodes, :edges
+
+  end
+
   class Flow
     def initialize(sys, name)
       @sys = sys
@@ -587,9 +639,7 @@ module Dogviz
 
     def render(type=:graphviz)
       return @graph if @rendered
-      raise "dunno bout that '#{type}', only know :graphviz" unless type == :graphviz
-
-      renderer = GraphvizRenderer.new @title, render_hints
+      renderer = create_renderer(type)
 
       children.each {|c|
         c.render renderer
@@ -599,6 +649,17 @@ module Dogviz
       }
       @rendered = true
       @graph = renderer.graph
+    end
+
+    def create_renderer(type)
+      if type == :graphviz
+        GraphvizRenderer.new @title, render_hints
+      elsif type == :sigma
+        SigmaRenderer.new @title
+      else
+        raise "dunno bout that '#{type}', only know :graphviz or :sigma"
+      end
+
     end
 
     def rollup?
