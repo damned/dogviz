@@ -25,6 +25,10 @@ module Dogviz
       }
     end
 
+    def render_subgraph(*args)
+      # NOP
+    end
+
     private
 
     attr_reader :nodes, :edges

@@ -18,7 +18,7 @@ module Dogviz
 
     def get_json_filename(type_to_filename)
       type = type_to_filename.keys.first
-      raise StandardError.new('json output only supported') unless type == :json
+      raise StandardError.new("json output only supported, not #{type}") unless type == :json
       type_to_filename[type]
     end
   end
