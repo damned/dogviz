@@ -14,6 +14,12 @@ module Dogviz
 
     def render_node(parent, id, render_options, attributes)
       @nodes << {id: id, label: id}
+      @edges << {
+          id: "#{parent.id}->#{id}",
+          type: 'containment',
+          source: parent.id,
+          target: id
+      } unless parent.root?
     end
 
     def render_edge(from, to, options)
@@ -25,11 +31,15 @@ module Dogviz
       }
     end
 
-    def render_subgraph(*args)
-      # NOP
+    def render_subgraph(parent, id, options, attributes)
+      @nodes << {id: container_label(id), type: 'container', label: container_label(id)}
     end
 
     private
+
+    def container_label(id)
+      id.gsub(/^cluster_/, '')
+    end
 
     attr_reader :nodes, :edges
   end

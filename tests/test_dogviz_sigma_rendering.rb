@@ -23,12 +23,25 @@ class TestDogvizSigmaRendering < Test::Unit::TestCase
     assert_equal({nodes: [ { id: 'a', label: 'a' }], edges: []}, graph)
   end
 
-  def test_ignores_containers
+  def test_includes_containers_with_appropriate_types
     sys.container('c').thing('a')
 
     graph = sys.render(:sigma)
 
-    assert_equal({nodes: [ { id: 'c_a', label: 'c_a' }], edges: []}, graph)
+    assert_equal({
+                     nodes: [
+                         { id: 'c', type: 'container', label: 'c' },
+                         { id: 'c_a', label: 'c_a' }
+                     ],
+                     edges: [
+                         {
+                             id: 'c->c_a',
+                             type: 'containment',
+                             source: 'c',
+                             target: 'c_a'
+                         }
+                     ]
+                 }, graph)
   end
 
   def test_renders_two_linked_nodes

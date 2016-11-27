@@ -34,5 +34,9 @@ module Dogviz
       @children << child
       child
     end
+
+    def root?
+      not respond_to?(:parent)
+    end
   end
 end
