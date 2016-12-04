@@ -44,6 +44,34 @@ class TestDogvizSigmaRendering < Test::Unit::TestCase
                  }, graph)
   end
 
+  def test_includes_nested_containers_modelled_with_containment_edges
+    sys.container('c').container('cc').thing('x')
+
+    graph = sys.render(:sigma)
+
+    assert_equal({
+                     nodes: [
+                         { id: 'c', type: 'container', label: 'c' },
+                         { id: 'c_cc', type: 'container', label: 'c_cc' },
+                         { id: 'c_cc_x', label: 'c_cc_x' }
+                     ],
+                     edges: [
+                         {
+                             id: 'c->c_cc',
+                             type: 'containment',
+                             source: 'c',
+                             target: 'c_cc'
+                         },
+                         {
+                             id: 'c_cc->c_cc_x',
+                             type: 'containment',
+                             source: 'c_cc',
+                             target: 'c_cc_x'
+                         }
+                     ]
+                 }, graph)
+  end
+
   def test_renders_two_linked_nodes
     sys.thing('a').points_to sys.thing('b')
 
