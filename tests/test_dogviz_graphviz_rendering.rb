@@ -348,4 +348,22 @@ class TestDogvizGraphvizRendering < Test::Unit::TestCase
     assert_equal('thread->haystack_nested_hidden_away_needle', connections)
   end
 
+  def test_can_use_to_method_to_point_to_things
+    a = sys.thing 'a'
+    b = sys.thing 'b'
+    c = sys.thing 'c'
+    a.to(b).to(c)
+
+    assert_equal('a->b b->c', connections)
+  end
+
+  def test_can_use_to_all_method_to_point_to_things
+    a = sys.thing 'a'
+    b = sys.thing 'b'
+    c = sys.thing 'c'
+    a.to_all b, c
+
+    assert_equal('a->b a->c', connections)
+  end
+
 end

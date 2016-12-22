@@ -43,6 +43,9 @@ module Dogviz
       other
     end
 
+    alias_method :to, :points_to
+    alias_method :to_all, :points_to_all
+
     def render(renderer)
       do_render_node(renderer) unless in_rollup? || in_skip?
     end
