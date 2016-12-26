@@ -21,41 +21,37 @@ module Dogviz
       edge
     end
 
-    def render_node(parent, id, options, attributes)
-      clean_node_options options
-      default_options = {:shape => 'box', :style => ''}
-      node = parent_node(parent).add_nodes(id, default_options.merge(options))
-      apply_render_attributes node, attributes
+    def render_node(parent, id, attributes)
+      clean_node_attributes attributes
+      default_attributes = {:shape => 'box', :style => ''}
+      merged_attributes = default_attributes.merge(attributes)
+      node = parent_node(parent).add_nodes(id, merged_attributes)
     end
 
-    def render_subgraph(parent, id, options, attributes)
-      puts "options", options
-      puts "attributes", attributes
-
-      if (options[:bounded] == true) then
+    def render_subgraph(parent, id, attributes)
+      if (attributes[:bounded] == true) then
         rendered_id = 'cluster_' + id
       else
         rendered_id = id
       end
       @rendered_subgraph_ids[id] = rendered_id
 
-      subgraph = parent_node(parent).add_graph(rendered_id, clean_subgraph_options(options.clone))
-      apply_render_attributes subgraph, attributes
+      subgraph = parent_node(parent).add_graph(rendered_id, clean_subgraph_attributes(attributes.clone))
       @subgraphs[id] = subgraph
       subgraph
     end
 
     private
 
-    def clean_node_options(options)
-      options.delete(:rank)
-      options.delete(:bounded)
-      options
+    def clean_node_attributes(attributes)
+      attributes.delete(:rank)
+      attributes.delete(:bounded)
+      attributes
     end
 
-    def clean_subgraph_options(options)
-      options.delete(:bounded)
-      options
+    def clean_subgraph_attributes(attributes)
+      attributes.delete(:bounded)
+      attributes
     end
 
     def parent_node(parent)

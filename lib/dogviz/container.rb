@@ -57,14 +57,12 @@ module Dogviz
 
     def do_render_subgraph(renderer)
       @render_type = :subgraph
-      attributes = @attributes
-      @subgraph = renderer.render_subgraph(parent, id, render_options, attributes)
+      @subgraph = renderer.render_subgraph(parent, id, render_options.merge(@attributes))
     end
 
     def do_render_node(renderer)
       @render_type = :node
-      attributes = @attributes
-      renderer.render_node(parent, id, render_options, attributes)
+      renderer.render_node(parent, id, render_options.merge(@attributes))
     end
 
     def init_rollup(options)
