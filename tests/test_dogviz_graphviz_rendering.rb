@@ -56,17 +56,17 @@ class TestDogvizGraphvizRendering < Test::Unit::TestCase
 
     graph
 
-    assert_equal([top.render_id, nested.render_id], subgraph_ids)
+    assert_equal([top.id, nested.id], subgraph_ids_without_cluster_prefixes)
 
-    top_subgraph = subgraph(top.render_id)
-    nested_subgraph = subgraph(nested.render_id)
+    top_subgraph = subgraph('cluster_' + top.id)
+    nested_subgraph = subgraph('cluster_' + nested.id)
 
     assert_equal(top_thing.id, top_subgraph.get_node(top_thing.id).id)
     assert_equal(nested_thing.id, nested_subgraph.get_node(nested_thing.id).id)
     assert_nil(top_subgraph.get_node(nested_thing.id), 'should not be in other container')
     assert_nil(nested_subgraph.get_node(top_thing.id), 'should not be in other container')
   end
-
+  
   def test_point_into_target_in_container
     container = sys.container('container')
     target = container.thing('target')

@@ -30,7 +30,7 @@ module Tests
     def test_container_exposes_inherited_render_options_from_parent
       inheritable_options = {fontname: 'glyphoz'}
       parent.render_options = inheritable_options
-      assert_equal inheritable_options, Container.new(parent, 'container').render_options
+      assert_equal 'glyphoz', Container.new(parent, 'container').render_options[:fontname]
     end
   end
 end

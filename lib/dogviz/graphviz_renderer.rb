@@ -10,6 +10,7 @@ module Dogviz
       @graph[hints]
       @subgraphs = {}
       @nodes = {}
+      @rendered_subgraph_ids = {}
     end
 
     def render_edge(from, other, options)
@@ -28,7 +29,17 @@ module Dogviz
     end
 
     def render_subgraph(parent, id, options, attributes)
-      subgraph = parent_node(parent).add_graph(id, options)
+      puts "options", options
+      puts "attributes", attributes
+
+      if (options[:bounded] == true) then
+        rendered_id = 'cluster_' + id
+      else
+        rendered_id = id
+      end
+      @rendered_subgraph_ids[id] = rendered_id
+
+      subgraph = parent_node(parent).add_graph(rendered_id, clean_node_options(options.clone))
       apply_render_attributes subgraph, attributes
       @subgraphs[id] = subgraph
       subgraph
@@ -38,16 +49,16 @@ module Dogviz
 
     def clean_node_options(options)
       options.delete(:rank)
-      options.delete(:cluster)
+      options.delete(:bounded)
       options
     end
 
     def parent_node(parent)
-      return graph unless parent.respond_to?(:render_id)
-      node = graph.search_node(parent.render_id)
+      return graph if parent.root?
+      node = graph.search_node(parent.id)
       return node unless node.nil?
-      subgraph = @subgraphs[parent.render_id]
-      raise "couldn't find node or graph: #{parent.render_id}, out of graphs: #{graph_ids}" if subgraph.nil?
+      subgraph = @subgraphs[parent.id]
+      raise "couldn't find node or graph: #{parent.id}, out of graphs: #{graph_ids}" if subgraph.nil?
       subgraph
     end
 

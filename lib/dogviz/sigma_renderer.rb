@@ -44,7 +44,7 @@ module Dogviz
     private
 
     def container_label(id)
-      id.gsub(/^cluster_/, '')
+      id
     end
 
     attr_reader :nodes, :edges

@@ -3,6 +3,10 @@ module GraphChecking
     subgraphs.map(&:id)
   end
 
+  def subgraph_ids_without_cluster_prefixes
+    subgraph_ids.map {|id| id.gsub /^cluster_/, '' }
+  end
+
   def subgraph(id)
     subgraphs.find {|sub| sub.id == id }
   end
