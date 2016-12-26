@@ -52,5 +52,16 @@ module Tests
       assert_equal ['chases', 'follows', 'parents', 'ignores'], graph.names_of.edges
     end
 
+    def test_allows_rank_specification
+      sys = Family.new
+      sys.logical_container 'sinker', rank: 'sink'
+
+      sys.output dot: outfile('dot')
+
+      dotspec = File.read outfile('dot')
+
+      assert_match /rank=sink/, dotspec
+    end
+
   end
 end

@@ -39,7 +39,7 @@ module Dogviz
       end
       @rendered_subgraph_ids[id] = rendered_id
 
-      subgraph = parent_node(parent).add_graph(rendered_id, clean_node_options(options.clone))
+      subgraph = parent_node(parent).add_graph(rendered_id, clean_subgraph_options(options.clone))
       apply_render_attributes subgraph, attributes
       @subgraphs[id] = subgraph
       subgraph
@@ -49,6 +49,11 @@ module Dogviz
 
     def clean_node_options(options)
       options.delete(:rank)
+      options.delete(:bounded)
+      options
+    end
+
+    def clean_subgraph_options(options)
       options.delete(:bounded)
       options
     end
