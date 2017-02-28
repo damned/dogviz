@@ -1,3 +1,4 @@
+* spike 'autostrap': automatically strap-on reader methods using normalised name
 * [DONE] render generic output (sigma.js json) for ingestion -> space-dog
 * sort out fore vs back color
 * [DONE] move 'cluster_' prefix to graphviz renderer
