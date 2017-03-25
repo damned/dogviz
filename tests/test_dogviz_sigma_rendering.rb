@@ -103,13 +103,13 @@ class TestDogvizSigmaRendering < Test::Unit::TestCase
   end
 
   def test_output_requires_type
-    assert_raise_with_message(StandardError, /provide hash/) {
+    assert_raise_message(/provide hash/) {
       sys.render(:sigma).output 'file'
     }
   end
 
   def test_json_only_output
-    assert_raise_with_message(StandardError, /json.*only/) {
+    assert_raise_message(/json.*only/) {
       sys.render(:sigma).output xml: 'xmlfile'
     }
   end

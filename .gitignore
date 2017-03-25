@@ -4,3 +4,4 @@ coverage
 sys.rb
 dogviz*gem
 Gemfile.lock
+vendor/
