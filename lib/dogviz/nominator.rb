@@ -2,7 +2,7 @@ module Dogviz
   module Nominator
     def nominate(names_to_nominees)
       names_to_nominees.each { |name, nominee|
-        self.class.send(:define_method, name) do
+        define_singleton_method name do
           nominee
         end
       }

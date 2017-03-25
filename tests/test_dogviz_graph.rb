@@ -115,16 +115,36 @@ class TestDogvizGraph < Test::Unit::TestCase
   end
 
   class Dog
+    def initialize(name)
+      @name = name.to_s
+    end
+    def inspect
+      "dog #{@name}"
+    end
   end
   def test_nominate_elevates_values_as_method_on_group
     group = sys.group('g')
 
-    dog = Dog.new
+    dog = Dog.new 'a'
 
     group.nominate foobar: :any_value, dog: dog
 
     assert_equal :any_value, group.foobar
     assert_equal dog, group.dog
+  end
+
+  def test_nominates_with_same_name_on_different_containers_work_together
+    group1 = sys.group('g1')
+    group2 = sys.group('g2')
+
+    dog1 = Dog.new 1
+    dog2 = Dog.new 2
+
+    group1.nominate dog: dog1
+    group2.nominate dog: dog2
+
+    assert_equal dog1, group1.dog
+    assert_equal dog2, group2.dog
   end
 
   def test_nominate_from_delegates_multiple_accessors
