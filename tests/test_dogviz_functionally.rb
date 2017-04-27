@@ -63,5 +63,14 @@ module Tests
       assert_match /rank=sink/, dotspec
     end
 
+    def test_can_render_auto_nominate_graph
+      sys = system_with_auto_nominate
+      sys.thing 'a'
+      sys.output svg: outfile('svg')
+    end
+
+    def system_with_auto_nominate
+      Dogviz::System.new 'test', auto_nominate: true
+    end
   end
 end

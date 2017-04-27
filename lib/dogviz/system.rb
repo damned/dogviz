@@ -74,7 +74,7 @@ module Dogviz
     end
 
     def auto_nominate?
-      render_hints[:auto_nominate]
+      @non_render_hints[:auto_nominate]
     end
     
 
@@ -83,7 +83,7 @@ module Dogviz
 
     def remove_dogviz_hints!(hints)
       dogviz_only_hints = {}
-      %i(colorize_edges).each { |k|
+      %i(colorize_edges auto_nominate).each { |k|
         dogviz_only_hints[k] = hints.delete k
       }
       dogviz_only_hints
