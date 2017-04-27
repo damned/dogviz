@@ -168,4 +168,34 @@ class TestDogvizGraph < Test::Unit::TestCase
     assert_equal sys, thing1.root
   end
 
+  def test_auto_nominate_automatically_creates_container_methods_based_on_containee_names
+    autosys = system_with_auto_nominate
+
+    group = autosys.group 'g'
+    a = group.thing 'a'
+
+    assert_equal a, group.a 
+    assert_equal a, autosys.g.a 
+  end
+
+  def test_auto_nominate_uses_underscores_for_whitespace
+    autosys = system_with_auto_nominate
+
+    ab = autosys.thing 'a or b'
+
+    assert_equal ab, autosys.a_or_b 
+  end
+
+  def test_auto_nominate_downcases
+    autosys = system_with_auto_nominate
+
+    allcaps = autosys.thing 'ALLCAPS'
+
+    assert_equal allcaps, autosys.allcaps
+  end
+
+  def system_with_auto_nominate
+    Dogviz::System.new 'test', auto_nominate: true
+  end
+
 end

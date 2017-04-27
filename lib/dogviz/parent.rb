@@ -32,6 +32,7 @@ module Dogviz
 
     def add(child)
       @children << child
+      nominate child.name => child if auto_nominate?
       child
     end
 

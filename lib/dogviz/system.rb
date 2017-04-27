@@ -73,6 +73,12 @@ module Dogviz
       @non_render_hints[:colorize_edges]
     end
 
+    def auto_nominate?
+      render_hints[:auto_nominate]
+    end
+    
+
+
     private
 
     def remove_dogviz_hints!(hints)

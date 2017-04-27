@@ -5,5 +5,16 @@
 * clean up init options + render attributes - not v clear / overlapping
 * make style attributes well defined -> less leaky + explicit graphviz passthroughs
 * separate style from domain-specific elements (can use same view-manipulation selection mechanisms)
+  - info holds all real / domain attributes
+  - style holds all view / representation attributes
 * move out any graphviz specifics from main models, e.g. colorize
 * move from inheritance -> better encaps
+* make everything a thing:
+  - things become containers when have other things
+  - gets away from "container" which is a bit confusing inline in infra description
+  - maybe makes more seamless when collapsing/hiding for different views?
+* add sankey diagrams?
+* other renderer integrations:
+  - plantuml?
+  - cyctoscape?
+* switch to proper graph lib under covers - this is just a builder + view wrapper...

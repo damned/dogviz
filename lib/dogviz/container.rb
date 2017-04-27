@@ -53,6 +53,10 @@ module Dogviz
       }
     end
 
+    def auto_nominate?
+      root.auto_nominate?
+    end    
+
     private
 
     def do_render_subgraph(renderer)

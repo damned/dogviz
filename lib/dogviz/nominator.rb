@@ -2,7 +2,7 @@ module Dogviz
   module Nominator
     def nominate(names_to_nominees)
       names_to_nominees.each { |name, nominee|
-        define_singleton_method name do
+        define_singleton_method sanitized_name(name) do
           nominee
         end
       }
@@ -14,5 +14,13 @@ module Dogviz
         nominate accessor_sym => nominee_nominator.send(accessor_sym)
       }
     end
+
+    private
+
+    def sanitized_name(name)
+      return name if name.is_a?(Symbol)
+      name.to_s.gsub(/\s/, '_').downcase
+    end
+    
   end
 end
