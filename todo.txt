@@ -1,4 +1,4 @@
-* spike 'autostrap': automatically strap-on reader methods using normalised name
+* [DONE] spike 'autostrap': automatically strap-on reader methods using normalised name (auto_nominate)
 * [DONE] render generic output (sigma.js json) for ingestion -> space-dog
 * sort out fore vs back color
 * [DONE] move 'cluster_' prefix to graphviz renderer
@@ -17,4 +17,13 @@
 * other renderer integrations:
   - plantuml?
   - cyctoscape?
-* switch to proper graph lib under covers - this is just a builder + view wrapper...
+* switch to proper graph lib under covers - this is just a builder + view wrapper... https://github.com/monora/rgl?
+* #repeat(count) on containers to give multiple instances, by default expanded (to show each instance)
+* ...then can #collapse (1 instance showing, number labelled) 
+* ...then can #template or #prototype or ?? (1 instance detailed, rest simplified)
+* ...make count of repeat be complex e.g. to show auto-scaling, 1 per customer etc. etc.
+* make render 2 stages (rollups + repeats, then render) enabling:
+  - render multiple views from same dog instance
+  - separate and simplify rollup logic, which is a bit complex
+  - pave way for simplified repeat expansion logic, which is similarly complex (+ almost the reverse)
+  - pave way for cleaning graphviz specifics out of main dog ('cluster_', subgraphs) 
