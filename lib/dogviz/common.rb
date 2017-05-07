@@ -3,7 +3,7 @@ module Dogviz
     def create_id(name, parent)
       parts = []
       parts << parent.id if parent.respond_to? :id
-      parts += name.split /\s/
+      parts += name.split(/\s/)
       parts.join '_'
     end
 
@@ -38,7 +38,7 @@ module Dogviz
     end
 
     def setup_render_attributes(attributes)
-      @attributes = {} if @attributes.nil?
+      @attributes ||= {}
       @attributes.merge!(attributes)
     end
 
@@ -65,11 +65,11 @@ module Dogviz
     end
 
     def under_skip?
-      ancestors.any? &:skip?
+      ancestors.any?(&:skip?)
     end
 
     def under_rollup?
-      ancestors.any? &:rollup?
+      ancestors.any?(&:rollup?)
     end
 
     def in_rollup?

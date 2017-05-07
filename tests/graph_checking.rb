@@ -4,7 +4,7 @@ module GraphChecking
   end
 
   def subgraph_ids_without_cluster_prefixes
-    subgraph_ids.map {|id| id.gsub /^cluster_/, '' }
+    subgraph_ids.map {|id| id.gsub(/^cluster_/, '') }
   end
 
   def subgraph(id)

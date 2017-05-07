@@ -66,7 +66,7 @@ module Tests
     private
 
     def comments
-      @doc.children.select &:comment?
+      @doc.children.select(&:comment?)
     end
   end
 end

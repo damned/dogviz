@@ -18,7 +18,7 @@ module Tests
 
     include Dogviz
     class Family < Dogviz::System
-      attr_reader *%i(cat dog mum son)
+      attr_reader(*%i(cat dog mum son))
       def initialize
         super 'family'
 
@@ -60,7 +60,7 @@ module Tests
 
       dotspec = File.read outfile('dot')
 
-      assert_match /rank=sink/, dotspec
+      assert_match(/rank=sink/, dotspec)
     end
 
     def test_can_render_auto_nominate_graph

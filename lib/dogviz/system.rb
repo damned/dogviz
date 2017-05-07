@@ -23,7 +23,7 @@ module Dogviz
 
     def output(*args)
       render
-      out = graph.output *args
+      out = graph.output(*args)
       puts "Created output: #{args.join ' '}" if run_from_command_line?
       out
     end

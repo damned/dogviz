@@ -25,7 +25,7 @@ module Dogviz
       clean_node_attributes attributes
       default_attributes = {:shape => 'box', :style => ''}
       merged_attributes = default_attributes.merge(attributes)
-      node = parent_node(parent).add_nodes(id, merged_attributes)
+      parent_node(parent).add_nodes(id, merged_attributes)
     end
 
     def render_subgraph(parent, id, attributes)

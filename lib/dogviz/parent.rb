@@ -2,12 +2,12 @@ module Dogviz
   module Parent
     def find_all(&matcher)
       raise MissingMatchBlockError.new unless block_given?
-      @by_name.find_all &matcher
+      @by_name.find_all(&matcher)
     end
 
     def find(name=nil, &matcher)
       if block_given?
-        @by_name.find &matcher
+        @by_name.find(&matcher)
       else
         raise 'Need to provide name or block' if name.nil?
         @by_name.lookup name

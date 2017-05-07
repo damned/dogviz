@@ -163,7 +163,7 @@ class TestDogvizGraph < Test::Unit::TestCase
   def test_root
     group = sys.group('g')
     nested_group = group.group('nested group')
-    thing1 = group.thing('n1')
+    thing1 = nested_group.thing('n1')
 
     assert_equal sys, thing1.root
   end

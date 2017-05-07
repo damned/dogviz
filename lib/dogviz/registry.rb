@@ -21,12 +21,12 @@ module Dogviz
 
     def find(&matcher)
       raise LookupError.new(@context, "need to provide match block") unless block_given?
-      @all.find &matcher
+      @all.find(&matcher)
     end
 
     def find_all(&matcher)
       raise MissingMatchBlockError.new(@context) unless block_given?
-      @all.select &matcher
+      @all.select(&matcher)
     end
 
     def lookup(name)

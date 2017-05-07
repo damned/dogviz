@@ -105,10 +105,10 @@ module Dogviz
         others = [other]
       end
 
-      others.each do |other|
-        edge_heads << other
+      others.each do |other_to_render|
+        edge_heads << other_to_render
         render_options = pointer[:options]
-        renderer.render_edge(from, other, render_options)
+        renderer.render_edge(from, other_to_render, render_options)
       end
     end
 

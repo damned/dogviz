@@ -34,7 +34,7 @@ class TestDogvizGraphvizRendering < Test::Unit::TestCase
 
   def test_containers_are_subgraphs_prefixed_with_cluster_for_visual_containment_in_GraphViz
     top = sys.container('top')
-    nested = top.container('nested')
+    top.container('nested')
 
     assert_equal('cluster_top', subgraph_ids.first)
     assert_equal('cluster_top_nested', subgraph_ids.last)
