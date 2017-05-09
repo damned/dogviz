@@ -63,11 +63,17 @@ module Dogviz
     end
 
     def setup_render_edge(other, options)
+      fontsize = 14
+      fontsize += options[:stroke] if options.has_key?(:stroke)
       pointers << {
           other: other,
           options: {
               xlabel: options[:name],
-              style: options[:style]
+              style: options[:style],
+              color: options[:color],
+              fontcolor: options[:color],
+              penwidth: options[:stroke],
+              fontsize: fontsize
           }.merge(inherited_render_options)
       }
 
