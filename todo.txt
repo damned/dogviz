@@ -26,4 +26,10 @@
   - render multiple views from same dog instance
   - separate and simplify rollup logic, which is a bit complex
   - pave way for simplified repeat expansion logic, which is similarly complex (+ almost the reverse)
-  - pave way for cleaning graphviz specifics out of main dog ('cluster_', subgraphs) 
+  - pave way for cleaning graphviz specifics out of main dog ('cluster_', subgraphs)
+* edge attributes?
+  i - pass on any attributes passed as _graphviz: on to graphviz renderer for relevant entity
+  ii - map in simpler named attributes 
+      - color -> edge + font color
+      - stroke -> edge size and font size
+* render to d3 force directed graph
