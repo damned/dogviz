@@ -33,3 +33,10 @@
       - color -> edge + font color
       - stroke -> edge size and font size
 * render to d3 force directed graph
+* plantuml flow render
+  - can include images
+  - has more control
+  - can render locally
+* "rollup edges": where many edges from a node, rollup those to certain destination (e.g. from 'website' to all 
+   in '3rd party' container) so that not so crowded around source (would add extra view node nearer target)
+* "via": app -> service, via: load_balancer... then can omit load_balancer and get direct app -> service connection 

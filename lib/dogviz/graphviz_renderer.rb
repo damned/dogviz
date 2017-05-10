@@ -6,8 +6,14 @@ module Dogviz
     attr_reader :graph
 
     def initialize(title, hints)
-      @graph = GraphViz.digraph(title)
-      @graph[hints]
+      construction_hints = {}
+      after_hints = hints.clone
+      if hints.has_key?(:use)
+        construction_hints[:use] = hints[:use]
+        after_hints.delete :use
+      end
+      @graph = GraphViz.digraph(title, construction_hints)
+      @graph[after_hints]
       @subgraphs = {}
       @nodes = {}
       @rendered_subgraph_ids = {}

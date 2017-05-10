@@ -23,6 +23,7 @@ module Dogviz
     def info(fields)
       @info.merge! fields
       setup_render_attributes(label: label_with_info)
+      self
     end
 
     def doclink(url)
