@@ -40,3 +40,11 @@
 * "rollup edges": where many edges from a node, rollup those to certain destination (e.g. from 'website' to all 
    in '3rd party' container) so that not so crowded around source (would add extra view node nearer target)
 * "via": app -> service, via: load_balancer... then can omit load_balancer and get direct app -> service connection 
+* capture arbitrary info
+   - filter primitives for views
+   - default info_level to 'all', could be set to 'none'
+   - info_level applies to:
+     - entire view by default
+     - specified per node
+     - optionally inherited?
+   - allow nodes to assign summary fields? then could be set to 'summary'
