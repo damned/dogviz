@@ -38,54 +38,20 @@ module Tests
                    ].join("\n"), definition
     end
 
-    def xxxx_test_spike_flow_alternate_syntax
+    def test_nested_flow_syntax
       sys = System.new 'takeaway'
       eater = sys.thing 'eater'
       server = sys.thing 'server'
       cook = sys.thing 'chef'
 
-      order = sys.flow 'order'
+      order = sys.flow('order').involves(server, cook)
 
-      order.sends_from(eater) {
-        sends('gimme burger', server) {
-          sends('passes order', cook)
-        }
-      }
+      server.receives burger: 'gimme burger'
+      cook.receives order: 'passes order'
 
-      order.sends_from(eater) {
-        sends(server, 'gimme burger') {
-          sends(cook, 'passes order')
-        }
-      }
-
-      order.sends_from(eater) {
-        sends(server) {
-          req 'gimme burger'
-          sends(cook) {
-            req 'passes order'
-          }
-        }
-      }
-
-      order.sends_from(eater) {
-        to(server) {
-          req 'gimme burger'
-          to(cook) {
-            req 'passes order'
-          }
-        }
-      }
-
-      server.receives :burger, 'gimme burger'
-      cook.receives :order, 'passes order'
-      cook.receives(:orders) do |count|
-        "passes #{count} orders"
-      end
-
-      order.sends_from(eater) {
+      order.from(eater) {
         server.burger {
-          cook.order {
-          }
+          cook.order
         }
       }
 

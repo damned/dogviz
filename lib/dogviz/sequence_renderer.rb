@@ -10,7 +10,6 @@ module Dogviz
     end
 
     def render_edge(from, other, options)
-
       detail = options[:label]
       receiver_label = other.name
       sender_label = from.name

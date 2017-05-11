@@ -8,12 +8,44 @@ module Dogviz
       @sys = sys
       @name = name
       @calls = []
+      @actors = []
+      @caller_stack = []
     end
 
     def make_connections
       calls.each { |from, to, label|
         thing_of(from).points_to thing_of(to), label: label
       }
+    end
+
+    def involves(*actors)
+      @actors += actors
+      self
+    end
+    
+    def from(initial_actor, &flowspec)
+      @actors.each { |actor|
+        actor.start_flow self
+      }
+      @caller_stack << initial_actor
+      flowspec.call
+      @caller_stack.pop
+      @actors.each { |actor|
+        actor.stop_flow
+      }
+    end
+
+    def add_call(from, to, label)
+      calls << [from, to, label]
+    end
+
+    def next_call(to, label)
+      add_call @caller_stack.last, to, label
+      @caller_stack << to
+    end
+
+    def end_call
+      add_call @caller_stack.pop, @caller_stack.last, ''
     end
 
     def flows(*steps)
@@ -29,7 +61,7 @@ module Dogviz
           to = ensure_is_thing(step)
         end
         unless to.nil?
-          calls << [from, to, label]
+          add_call from, to, label
           from = to
           to = label = nil
         end
