@@ -46,13 +46,14 @@ module Tests
 
       order = sys.flow('order').involves(server, cook)
 
-      server.receives burger: 'gimme burger'
+      server.receives burger: 'gimme burger', dessert: 'gimme dessert'
       cook.receives order: 'passes order'
 
       order.from(eater) {
         server.burger {
           cook.order
         }
+        server.dessert
       }
 
       order.output sequence: outfile('seq.txt')
@@ -63,6 +64,8 @@ module Tests
                        'eater -> server: gimme burger',
                        'server -> chef: passes order',
                        'chef -> server:',
+                       'server -> eater:',
+                       'eater -> server: gimme dessert',
                        'server -> eater:',
                    ].join("\n"), definition
     end
