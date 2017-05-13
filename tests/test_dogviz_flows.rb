@@ -40,7 +40,7 @@ module Tests
 
       sys.server.receives burger: { 'gimme burger' => 'here ya go' }, 
                           dessert: 'gimme dessert'
-      sys.cook.receives order: 'passes order'
+      sys.cook.receives order: { 'passes order' => '' }
 
       order.from(sys.eater) {
         sys.server.burger {
@@ -56,8 +56,7 @@ module Tests
                     'server -> cook: passes order',
                     'cook -> server:',
                     'server -> eater: here ya go',
-                    'eater -> server: gimme dessert',
-                    'server -> eater:',
+                    'eater -> server: gimme dessert'
                   ].join("\n"), definition
     end
 

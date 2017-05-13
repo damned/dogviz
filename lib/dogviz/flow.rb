@@ -53,7 +53,8 @@ module Dogviz
     end
 
     def end_call(label)
-      add_call @caller_stack.pop, @caller_stack.last, label
+      current_actor = @caller_stack.pop
+      add_call(current_actor, @caller_stack.last, label) unless label.nil?
     end
 
     def flows(*steps)

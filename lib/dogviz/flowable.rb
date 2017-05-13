@@ -23,7 +23,7 @@ module Dogviz
         request_def = requests[m]
         if request_def.is_a?(String)
           label = request_def
-          return_label = ''
+          return_label = nil
         else
           label = request_def.keys.first
           return_label = request_def.values.first
