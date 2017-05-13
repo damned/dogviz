@@ -20,6 +20,8 @@ module Dogviz
 
     def method_missing(m, *args, &block)
       if requests.has_key?(m)
+        @flow ||= nil
+
         request_def = requests[m]
         if request_def.is_a?(String)
           label = request_def

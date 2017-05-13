@@ -7,6 +7,7 @@
   [DONE] titles
   [DONE] indent text output 
   - alt combined fragments
+  - allow unbalanced combined fragments (explicit start + end, not just by block)
 * clean up init options + render attributes - not v clear / overlapping
 * make style attributes well defined -> less leaky + explicit graphviz passthroughs
 * separate style from domain-specific elements (can use same view-manipulation selection mechanisms)

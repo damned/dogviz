@@ -42,6 +42,23 @@ module Tests
                   ].join("\n"), definition
     end
 
+    def test_get_useful_error_if_not_called_involves_for_called_actor
+      create_takeaway
+
+      order = sys.flow('order')
+
+      sys.server.receives burger: 'gimme burger'
+
+      assert_raise_message(/call #involves for all actors/) {
+
+        order.from(sys.eater) {
+          sys.server.burger
+        }
+        
+      }
+    end
+    
+
     def test_nested_flow_with_optional_part_of_sequence
       create_takeaway
 

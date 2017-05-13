@@ -30,11 +30,16 @@ module Dogviz
         actor.start_flow self
       }
       @caller_stack << initial_actor
-      flowspec.call
-      @caller_stack.pop
-      @actors.each { |actor|
-        actor.stop_flow
-      }
+      begin
+        flowspec.call
+      rescue NoMethodError => nme
+        raise "Did you call #involves for all actors? It's a common cause of the caught exception: #{nme}"
+      ensure
+        @caller_stack.pop
+        @actors.each { |actor|
+          actor.stop_flow
+        }
+      end      
     end
 
     def optional(text, &block)
