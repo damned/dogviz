@@ -52,8 +52,8 @@ module Dogviz
       @caller_stack << to
     end
 
-    def end_call
-      add_call @caller_stack.pop, @caller_stack.last, ''
+    def end_call(label)
+      add_call @caller_stack.pop, @caller_stack.last, label
     end
 
     def flows(*steps)
@@ -93,7 +93,7 @@ module Dogviz
         if type == :call
           renderer.render_edge(from, to, {label: label})
         elsif type == :end
-          renderer.end_combination          
+          renderer.end_combination
         else
           renderer.start_combination(type, label)
         end

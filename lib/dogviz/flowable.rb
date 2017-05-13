@@ -20,9 +20,18 @@ module Dogviz
 
     def method_missing(m, *args, &block)
       if requests.has_key?(m)
-        @flow.next_call self, requests[m]
+        request_def = requests[m]
+        if request_def.is_a?(String)
+          label = request_def
+          return_label = ''
+        else
+          label = request_def.keys.first
+          return_label = request_def.values.first
+        end
+        
+        @flow.next_call self, label
         block.call if block_given?
-        @flow.end_call
+        @flow.end_call return_label
       else
         raise "this flowable does not know about receiving '#{m}', only know about: #{requests.keys}"
       end

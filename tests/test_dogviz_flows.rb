@@ -38,7 +38,7 @@ module Tests
 
       order = sys.flow('order').involves(sys.server, sys.cook)
 
-      sys.server.receives burger: 'gimme burger', 
+      sys.server.receives burger: { 'gimme burger' => 'here ya go' }, 
                           dessert: 'gimme dessert'
       sys.cook.receives order: 'passes order'
 
@@ -52,13 +52,13 @@ module Tests
       definition = sequence_definition(order)
 
       assert_equal [
-                       'eater -> server: gimme burger',
-                       'server -> cook: passes order',
-                       'cook -> server:',
-                       'server -> eater:',
-                       'eater -> server: gimme dessert',
-                       'server -> eater:',
-                   ].join("\n"), definition
+                    'eater -> server: gimme burger',
+                    'server -> cook: passes order',
+                    'cook -> server:',
+                    'server -> eater: here ya go',
+                    'eater -> server: gimme dessert',
+                    'server -> eater:',
+                  ].join("\n"), definition
     end
 
     def test_nested_flow_with_optional_part_of_sequence
@@ -66,7 +66,7 @@ module Tests
 
       order = sys.flow('order').involves sys.server
 
-      sys.server.receives burger: 'gimme burger'
+      sys.server.receives burger: { 'gimme burger' => 'here you go' }
 
       order.from(sys.eater) {
         order.opt('if hungry') {
@@ -79,7 +79,7 @@ module Tests
       assert_equal [
                      'opt if hungry',
                        'eater -> server: gimme burger',
-                       'server -> eater:',
+                       'server -> eater: here you go',
                      'end'
                    ].join("\n"), definition
     end
