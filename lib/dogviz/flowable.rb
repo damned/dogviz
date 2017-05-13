@@ -31,7 +31,7 @@ module Dogviz
         
         @flow.next_call self, label
         block.call if block_given?
-        @flow.end_call return_label
+        @flow.end_call(return_label)
       else
         raise "this flowable does not know about receiving '#{m}', only know about: #{requests.keys}"
       end

@@ -7,6 +7,7 @@ module Dogviz
 
     def initialize(title)
       @lines = []
+      add_title title
     end
 
     def render_edge(from, other, options)
@@ -35,6 +36,9 @@ module Dogviz
     end
 
     private
+
+    def add_title(title)
+    end
 
     def process_start_label(receiver_label)
       "+#{receiver_label}"

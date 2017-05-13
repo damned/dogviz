@@ -1,7 +1,12 @@
 * [DONE] spike 'autostrap': automatically strap-on reader methods using normalised name (auto_nominate)
 * [DONE] render generic output (sigma.js json) for ingestion -> space-dog
-* sort out fore vs back color
 * [DONE] move 'cluster_' prefix to graphviz renderer
+* flow / sequence improvements
+  [DONE] new flow syntax
+  [DONE] opt combined fragments
+  - titles
+  - alt combined fragments
+  - indent text output 
 * clean up init options + render attributes - not v clear / overlapping
 * make style attributes well defined -> less leaky + explicit graphviz passthroughs
 * separate style from domain-specific elements (can use same view-manipulation selection mechanisms)
@@ -48,3 +53,4 @@
      - specified per node
      - optionally inherited?
    - allow nodes to assign summary fields? then could be set to 'summary'
+* sort out fore vs back color
