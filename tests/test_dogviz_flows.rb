@@ -16,80 +16,79 @@ module Tests
     include Dogviz
 
     def test_flow_generates_precise_sequence
-      sys = System.new 'takeaway'
-      eater = sys.thing 'eater'
-      server = sys.thing 'server'
-      cook = sys.thing 'chef'
+      create_takeaway
 
       order = sys.flow 'order'
-      order.flows eater, 'gimme burger',
-                  server, 'passes order',
-                  cook, server, eater
+      order.flows sys.eater, 'gimme burger',
+                  sys.server, 'passes order',
+                  sys.cook, sys.server, sys.eater
 
-      order.output sequence: outfile('seq.txt')
-
-      definition = read_outfile('seq.txt')
+      definition = sequence_definition(order)
 
       assert_equal [
                        'eater -> server: gimme burger',
-                       'server -> chef: passes order',
-                       'chef -> server:',
+                       'server -> cook: passes order',
+                       'cook -> server:',
                        'server -> eater:',
                    ].join("\n"), definition
     end
 
     def test_nested_flow_syntax
-      sys = System.new 'takeaway'
-      eater = sys.thing 'eater'
-      server = sys.thing 'server'
-      cook = sys.thing 'chef'
+      create_takeaway
 
-      order = sys.flow('order').involves(server, cook)
+      order = sys.flow('order').involves(sys.server, sys.cook)
 
-      server.receives burger: 'gimme burger', dessert: 'gimme dessert'
-      cook.receives order: 'passes order'
+      sys.server.receives burger: 'gimme burger', 
+                          dessert: 'gimme dessert'
+      sys.cook.receives order: 'passes order'
 
-      order.from(eater) {
-        server.burger {
-          cook.order
+      order.from(sys.eater) {
+        sys.server.burger {
+          sys.cook.order
         }
-        server.dessert
+        sys.server.dessert
       }
 
-      order.output sequence: outfile('seq.txt')
-
-      definition = read_outfile('seq.txt')
+      definition = sequence_definition(order)
 
       assert_equal [
                        'eater -> server: gimme burger',
-                       'server -> chef: passes order',
-                       'chef -> server:',
+                       'server -> cook: passes order',
+                       'cook -> server:',
                        'server -> eater:',
                        'eater -> server: gimme dessert',
                        'server -> eater:',
                    ].join("\n"), definition
     end
 
-    def create_food_flow
-      @sys = System.new 'takeaway'
-      eater = sys.thing 'eater'
-      server = sys.thing 'server'
-      cook = sys.thing 'cook'
+    def test_nested_flow_with_optional_part_of_sequence
+      create_takeaway
 
-      order = sys.flow 'order'
-      order.flows eater, 'orders',
-                  server, 'creates order',
-                  cook.does('cooks burger'),
-                  'burger', server,
-                  'burger', eater
-      order
+      order = sys.flow('order').involves sys.server
+
+      sys.server.receives burger: 'gimme burger'
+
+      order.from(sys.eater) {
+        order.opt('if hungry') {
+          sys.server.burger
+        }
+      }
+
+      definition = sequence_definition(order)
+
+      assert_equal [
+                     'opt if hungry',
+                       'eater -> server: gimme burger',
+                       'server -> eater:',
+                     'end'
+                   ].join("\n"), definition
     end
+    
 
     def test_flow_generates_precise_sequence_with_action
       order = create_food_flow
 
-      order.output sequence: outfile('seq.txt')
-      definition = read_outfile('seq.txt')
+      definition = sequence_definition order
 
       assert_equal([
                        'eater -> server: orders',
@@ -114,10 +113,35 @@ module Tests
 
     attr_accessor :sys
 
+    def sequence_definition(order)
+      order.output sequence: outfile('seq.txt')
+
+      read_outfile('seq.txt')
+    end
+
     def graph
       g = sys.render
       sys.output svg: outfile('svg')
       g
     end
+
+    def create_takeaway
+      @sys = System.new 'takeaway', auto_nominate: true
+      eater = sys.thing 'eater'
+      server = sys.thing 'server'
+      cook = sys.thing 'cook'
+    end
+    
+    def create_food_flow
+      create_takeaway
+      order = sys.flow 'order'
+      order.flows sys.eater, 'orders',
+                  sys.server, 'creates order',
+                  sys.cook.does('cooks burger'),
+                  'burger', sys.server,
+                  'burger', sys.eater
+      order
+    end
+
   end
 end

@@ -22,6 +22,14 @@ module Dogviz
       lines << "#{sender_label} -> #{receiver_label}: #{detail}"
     end
 
+    def start_combination(operator, guard)
+      lines << "#{operator} #{guard}"
+    end
+    
+    def end_combination
+      lines << "end"
+    end
+
     def rendered
       RenderedSequence.new lines
     end

@@ -7,14 +7,14 @@ module Dogviz
     def initialize(sys, name)
       @sys = sys
       @name = name
-      @calls = []
+      @commands = []
       @actors = []
       @caller_stack = []
     end
 
     def make_connections
-      calls.each { |from, to, label|
-        thing_of(from).points_to thing_of(to), label: label
+      commands.each { |type, from, to, label|
+        thing_of(from).points_to(thing_of(to), label: label) if type == :call
       }
     end
 
@@ -35,8 +35,16 @@ module Dogviz
       }
     end
 
+    def optional(text, &block)
+      commands << [:opt, nil, nil, text]
+      block.call
+      commands << [:end, nil, nil, nil]
+    end
+    
+    alias :opt :optional
+
     def add_call(from, to, label)
-      calls << [from, to, label]
+      commands << [:call, from, to, label]
     end
 
     def next_call(to, label)
@@ -69,7 +77,7 @@ module Dogviz
     end
 
     def ensure_is_thing(step)
-      raise "Expected some thing or process: '#{step}' already got: #{calls}" unless step.is_a?(Thing) || step.is_a?(Process)
+      raise "Expected some thing or process: '#{step}' already got: #{commands}" unless step.is_a?(Thing) || step.is_a?(Process)
       step
     end
 
@@ -81,15 +89,21 @@ module Dogviz
 
     def render
       renderer = SequenceRenderer.new(@name)
-      calls.each do |from, to, label|
-        renderer.render_edge from, to, {label: label}
+      commands.each do |type, from, to, label|
+        if type == :call
+          renderer.render_edge(from, to, {label: label})
+        elsif type == :end
+          renderer.end_combination          
+        else
+          renderer.start_combination(type, label)
+        end
       end
       renderer.rendered
     end
 
     private
 
-    attr_reader :calls, :sys
+    attr_reader :commands, :sys
 
     def thing_of(it)
       return it.processor if it.is_a?(Process)
