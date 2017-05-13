@@ -4,6 +4,8 @@ require_relative 'process'
 
 module Dogviz
   class Flow
+    attr_reader :sys
+
     def initialize(sys, name)
       @sys = sys
       @name = name
@@ -58,7 +60,7 @@ module Dogviz
     end
 
     def flows(*steps)
-      STDERR.puts 'deprecated: should use flow#from(actor) { <nested flow spec> }'
+      sys.warn_on_exit 'deprecation warning: flow#flows deprecated, should use flow#from(actor) { <nested flow spec> }'
       from = nil
       to = nil
       label = nil
@@ -105,7 +107,7 @@ module Dogviz
 
     private
 
-    attr_reader :commands, :sys
+    attr_reader :commands
 
     def thing_of(it)
       return it.processor if it.is_a?(Process)

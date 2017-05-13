@@ -38,6 +38,7 @@ module Dogviz
     private
 
     def add_title(title)
+      lines << "title #{title}"
     end
 
     def process_start_label(receiver_label)

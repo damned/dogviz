@@ -19,6 +19,8 @@ module Dogviz
       @render_hints = hints
       @title = create_title(name)
       @rendered = false
+      @warnings = Set.new
+      @suppress_warnings = false
     end
 
     def output(*args)
@@ -77,9 +79,33 @@ module Dogviz
       @non_render_hints[:auto_nominate]
     end
     
+    def warn_on_exit(warning)
+      if @warnings.empty?
+        Kernel.at_exit {
+          unless suppress_warnings?
+            warnings.each {|warning|
+              STDERR.puts warning
+            }
+          end
+        }
+      end
 
+      @warnings << warning
+    end
+
+    def warnings
+      @warnings.to_a
+    end
+    
+    def suppress_warnings!
+      @suppress_warnings = true
+    end
 
     private
+
+    def suppress_warnings?
+      @suppress_warnings
+    end
 
     def remove_dogviz_hints!(hints)
       dogviz_only_hints = {}
