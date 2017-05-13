@@ -7,6 +7,7 @@ module Dogviz
 
     def initialize(title)
       @lines = []
+      @indents = 0
       add_title title
     end
 
@@ -20,15 +21,17 @@ module Dogviz
       elsif from.is_a?(Process)
         receiver_label = process_end_label(receiver_label)
       end
-      lines << "#{sender_label} -> #{receiver_label}: #{detail}"
+      add_line "#{sender_label} -> #{receiver_label}: #{detail}"
     end
 
     def start_combination(operator, guard)
-      lines << "#{operator} #{guard}"
+      add_line "#{operator} #{guard}"
+      @indents += 1
     end
     
     def end_combination
-      lines << "end"
+      @indents -= 1
+      add_line 'end'
     end
 
     def rendered
@@ -37,8 +40,12 @@ module Dogviz
 
     private
 
+    def add_line(line)
+      lines << ('  ' * @indents + line)
+    end
+
     def add_title(title)
-      lines << "title #{title}"
+      add_line "title #{title}"
     end
 
     def process_start_label(receiver_label)

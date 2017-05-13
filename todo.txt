@@ -4,9 +4,9 @@
 * flow / sequence improvements
   [DONE] new flow syntax
   [DONE] opt combined fragments
-  - titles
+  [DONE] titles
+  [DONE] indent text output 
   - alt combined fragments
-  - indent text output 
 * clean up init options + render attributes - not v clear / overlapping
 * make style attributes well defined -> less leaky + explicit graphviz passthroughs
 * separate style from domain-specific elements (can use same view-manipulation selection mechanisms)

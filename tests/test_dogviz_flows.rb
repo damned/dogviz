@@ -59,8 +59,8 @@ module Tests
 
       assert_equal [
                      'opt if hungry',
-                       'eater -> server: gimme burger',
-                       'server -> eater: here you go',
+                     '  eater -> server: gimme burger',
+                     '  server -> eater: here you go',
                      'end'
                    ].join("\n"), definition
     end
