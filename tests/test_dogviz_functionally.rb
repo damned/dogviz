@@ -21,6 +21,7 @@ module Tests
       attr_reader(*%i(cat dog mum son))
       def initialize
         super 'family'
+        suppress_messages!
 
         house = container 'household'
 
@@ -70,7 +71,7 @@ module Tests
     end
 
     def system_with_auto_nominate
-      Dogviz::System.new 'test', auto_nominate: true
+      Dogviz::System.new('test', auto_nominate: true).suppress_messages!
     end
   end
 end

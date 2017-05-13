@@ -19,14 +19,23 @@ module Dogviz
       @render_hints = hints
       @title = create_title(name)
       @rendered = false
+      
       @warnings = Set.new
+      @messages = Set.new
+      
       @suppress_warnings = false
+      @suppress_messages = false
+      
+      on_exit {
+        output_messages
+        output_warnings
+      }
     end
 
     def output(*args)
       render
       out = graph.output(*args)
-      puts "Created output: #{args.join ' '}" if run_from_command_line?
+      @messages << "Created output: #{args.join ' '}" unless suppress_messages?
       out
     end
 
@@ -80,16 +89,6 @@ module Dogviz
     end
     
     def warn_on_exit(warning)
-      if @warnings.empty?
-        Kernel.at_exit {
-          unless suppress_warnings?
-            warnings.each {|warning|
-              STDERR.puts warning
-            }
-          end
-        }
-      end
-
       @warnings << warning
     end
 
@@ -97,14 +96,48 @@ module Dogviz
       @warnings.to_a
     end
     
+    def messages
+      @messages.to_a
+    end
+    
     def suppress_warnings!
       @suppress_warnings = true
+      self
+    end
+    
+    def suppress_messages!
+      @suppress_messages = true
+      self
     end
 
     private
 
+    def on_exit(&block)
+      Kernel.at_exit(&block)
+    end
+
+    def output_messages
+      unless suppress_messages?
+        messages.each {|message|
+          STDERR.puts message
+        }
+      end
+    end
+    
+    def output_warnings
+      unless suppress_warnings?
+        warnings.each {|warning|
+          STDERR.puts warning
+        }
+      end
+    end
+
     def suppress_warnings?
       @suppress_warnings
+    end
+
+    def suppress_messages?
+      @suppress_messages
     end
 
     def remove_dogviz_hints!(hints)
@@ -118,10 +151,6 @@ module Dogviz
     def create_title(name)
       now = DateTime.now
       "#{now.strftime '%H:%M'} #{name} #{now.strftime '%F'}"
-    end
-
-    def run_from_command_line?
-      $stdout.isatty
     end
   end
 end

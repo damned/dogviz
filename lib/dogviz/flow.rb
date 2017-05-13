@@ -105,6 +105,10 @@ module Dogviz
       renderer.rendered
     end
 
+    def suppress_messages!
+      sys.suppress_messages!
+    end
+    
     private
 
     attr_reader :commands

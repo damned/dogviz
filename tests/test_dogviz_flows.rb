@@ -113,7 +113,7 @@ module Tests
     def test_deprecated_flows_generates_warnings
       order = create_food_flow_with_deprecated_flows
 
-      assert_equal(true, order.sys.warnings.join(',').include?('flow#flows deprecated'))
+      assert_equal(1, order.sys.warnings.select {|w| w.include?('flow#flows deprecated')}.size)
     end
 
     private
@@ -122,6 +122,7 @@ module Tests
 
     def sequence_definition(order, without_lines_starting: ['title'])
       order.output sequence: outfile('seq.txt')
+      order.suppress_messages!
 
       lines = read_outfile('seq.txt').split "\n"
       without_lines_starting.each {|prefix|
@@ -137,7 +138,7 @@ module Tests
     end
 
     def create_takeaway
-      @sys = System.new 'takeaway', auto_nominate: true
+      @sys = System.new('takeaway', auto_nominate: true).suppress_messages!
       sys.thing 'eater'
       sys.thing 'server'
       sys.thing 'cook'
