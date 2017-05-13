@@ -57,6 +57,7 @@ module Dogviz
     end
 
     def flows(*steps)
+      STDERR.puts 'deprecated: should use flow#from(actor) { <nested flow spec> }'
       from = nil
       to = nil
       label = nil
