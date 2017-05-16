@@ -42,6 +42,11 @@ module Dogviz
       end      
     end
 
+    def note(where, what)
+      # yukk next lets move to command classes, e.g. OptCommand, NoteCommand, CallCommand etc.
+      commands << [:note, @caller_stack.last, where, what]
+    end
+
     def optional(text, &block)
       commands << [:opt, nil, nil, text]
       block.call
@@ -103,6 +108,8 @@ module Dogviz
           renderer.render_edge(from, to, {label: label})
         elsif type == :end
           renderer.end_combination
+        elsif type == :note
+          renderer.note(from, to, label)
         else
           renderer.start_combination(type, label)
         end

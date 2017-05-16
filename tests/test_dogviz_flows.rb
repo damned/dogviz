@@ -57,7 +57,6 @@ module Tests
         
       }
     end
-    
 
     def test_nested_flow_with_optional_part_of_sequence
       create_takeaway
@@ -82,6 +81,25 @@ module Tests
                    ].join("\n"), definition
     end
     
+    def test_nested_flow_with_note_on_right
+      create_takeaway
+
+      order = sys.flow('order').involves sys.server
+
+      sys.server.receives burger: { 'gimme burger' => 'here you go' }
+
+      order.from(sys.eater) {
+        order.note(:right, 'a note')
+      }
+
+      definition = sequence_definition(order)
+
+      assert_equal [
+                     'note right of eater',
+                     '  a note',
+                     'end note',
+                   ].join("\n"), definition
+    end
 
     def test_flow_generates_precise_sequence_with_deprecated_flows
       create_takeaway

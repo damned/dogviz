@@ -34,6 +34,14 @@ module Dogviz
       add_line 'end'
     end
 
+    def note(from, where, what)
+      add_line "note #{where} of #{from.name}"
+      @indents += 1
+      add_line what
+      @indents -= 1
+      add_line "end note"
+    end
+
     def rendered
       RenderedSequence.new lines
     end
