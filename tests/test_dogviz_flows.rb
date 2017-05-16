@@ -84,12 +84,12 @@ module Tests
     def test_nested_flow_with_note_on_right
       create_takeaway
 
-      order = sys.flow('order').involves sys.server
+      order = sys.flow('order').involves sys.server, sys.eater
 
       sys.server.receives burger: { 'gimme burger' => 'here you go' }
 
       order.from(sys.eater) {
-        order.note(:right, 'a note')
+        sys.eater.note(:right, 'a note')
       }
 
       definition = sequence_definition(order)

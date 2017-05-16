@@ -9,6 +9,10 @@ module Dogviz
     def receives(requests, &block)
       @requests = self.requests.merge requests
     end
+
+    def note(where, what)
+      @flow.add_note(self, where, what)
+    end
     
     def start_flow(flow)
       @flow = flow

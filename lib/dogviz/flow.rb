@@ -16,6 +16,7 @@ module Dogviz
 
     def make_connections
       commands.each { |type, from, to, label|
+        puts "type: #{type}, label: #{label}"
         thing_of(from).points_to(thing_of(to), label: label) if type == :call
       }
     end
@@ -42,7 +43,7 @@ module Dogviz
       end      
     end
 
-    def note(where, what)
+    def add_note(from, where, what)
       # yukk next lets move to command classes, e.g. OptCommand, NoteCommand, CallCommand etc.
       commands << [:note, @caller_stack.last, where, what]
     end
