@@ -55,3 +55,4 @@
      - optionally inherited?
    - allow nodes to assign summary fields? then could be set to 'summary'
 * sort out fore vs back color
+* sort out HACK (search for commit in git log) around flow detail used in make_connections

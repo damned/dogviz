@@ -16,8 +16,7 @@ module Dogviz
 
     def make_connections
       commands.each { |type, from, to, label|
-        puts "type: #{type}, label: #{label}"
-        thing_of(from).points_to(thing_of(to), label: label) if type == :call
+        thing_of(from).points_to(thing_of(to), name: label.split('\n').first) if type == :call
       }
     end
 
