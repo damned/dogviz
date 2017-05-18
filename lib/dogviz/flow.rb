@@ -44,7 +44,7 @@ module Dogviz
 
     def add_note(from, where, what)
       # yukk next lets move to command classes, e.g. OptCommand, NoteCommand, CallCommand etc.
-      commands << [:note, @caller_stack.last, where, what]
+      commands << [:note, from, where, what]
     end
 
     def optional(text, &block)

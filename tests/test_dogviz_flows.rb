@@ -86,16 +86,18 @@ module Tests
 
       order = sys.flow('order').involves sys.server, sys.eater
 
-      sys.server.receives burger: { 'gimme burger' => 'here you go' }
+      sys.server.receives burger: 'gimme burger'
 
       order.from(sys.eater) {
-        sys.eater.note(:right, 'a note')
+        sys.server.burger
+        sys.server.note(:right, 'a note')
       }
 
       definition = sequence_definition(order)
 
       assert_equal [
-                     'note right of eater',
+                     'eater -> server: gimme burger',
+                     'note right of server',
                      '  a note',
                      'end note',
                    ].join("\n"), definition
