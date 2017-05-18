@@ -80,6 +80,30 @@ module Tests
                      'end'
                    ].join("\n"), definition
     end
+
+    def test_nested_flow_dynamic_receives_definition
+      create_takeaway
+
+      order = sys.flow('order').involves sys.server
+
+      sys.server.receives(:order) do |order_no| 
+        { "make order #{order_no}" => "deliver order #{order_no}" }
+      end
+
+      order.from(sys.eater) {
+        sys.server.order(1)
+        sys.server.order(2)
+      }
+
+      definition = sequence_definition(order)
+
+      assert_equal [
+                     'eater -> server: make order 1',
+                     'server -> eater: deliver order 1',
+                     'eater -> server: make order 2',
+                     'server -> eater: deliver order 2',
+                   ].join("\n"), definition
+    end
     
     def test_nested_flow_with_note_on_right
       create_takeaway

@@ -7,7 +7,10 @@ module Dogviz
     end
     
     def receives(requests, &block)
-      @requests = self.requests.merge requests
+      
+      @requests = self.requests.merge requests if requests.is_a?(Hash)
+      self.requests[requests] = block if requests.is_a?(Symbol)
+
     end
 
     def note(where, what)
@@ -31,6 +34,7 @@ module Dogviz
           label = request_def
           return_label = nil
         else
+          request_def = request_def.call(*args) if request_def.is_a?(Proc)
           label = request_def.keys.first
           return_label = request_def.values.first
         end
