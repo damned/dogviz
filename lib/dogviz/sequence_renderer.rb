@@ -8,6 +8,7 @@ module Dogviz
     def initialize(title)
       @lines = []
       @indents = 0
+      @rendered_class = RenderedSequence
       add_title title
     end
 
@@ -43,7 +44,7 @@ module Dogviz
     end
 
     def rendered
-      RenderedSequence.new lines
+      @rendered_class.new lines
     end
 
     private
@@ -80,4 +81,19 @@ module Dogviz
     end
     
   end
+
+  class WebSequenceDiagramsSequenceRenderer < SequenceRenderer
+    def initialize title
+      super title
+      @rendered_class = WebSequenceDiagramsRenderedSequence
+    end    
+  end
+  
+  class PlantUmlSequenceRenderer < SequenceRenderer
+    def initialize title
+      super title
+      @rendered_class = PlantUmlRenderedSequence
+    end    
+  end
+  
 end

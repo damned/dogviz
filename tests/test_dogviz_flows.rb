@@ -104,6 +104,28 @@ module Tests
                      'server -> eater: "deliver order 2"'
                    ].join("\n"), definition
     end
+
+    def test_plantuml_text_output
+      create_takeaway
+
+      order = sys.flow('order').involves sys.server
+
+      sys.server.receives burger: 'gimme'
+
+      order.from(sys.eater) {
+        sys.server.burger
+      }
+
+      order.output plantuml: outfile('seq.plantuml')
+      definition = read_outfile('seq.plantuml')
+
+      assert_equal [
+                     '@startuml',
+                     'title order',
+                     'eater -> server: gimme',
+                     '@enduml'
+                   ].join("\n"), definition
+    end
     
     def test_nested_flow_with_note_on_right
       create_takeaway
@@ -183,7 +205,6 @@ module Tests
 
     def sequence_definition(order, without_lines_starting: ['title'])
       order.output sequence: outfile('seq.txt')
-      order.suppress_messages!
 
       lines = read_outfile('seq.txt').split "\n"
       without_lines_starting.each {|prefix|

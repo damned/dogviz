@@ -4,6 +4,11 @@ require_relative 'process'
 
 module Dogviz
   class Flow
+    FLOW_RENDERERS = {
+      sequence: WebSequenceDiagramsSequenceRenderer,
+      plantuml: PlantUmlSequenceRenderer
+    }
+
     attr_reader :sys
 
     def initialize(sys, name)
@@ -97,12 +102,12 @@ module Dogviz
 
     def output(type_to_file)
       type = type_to_file.keys.first
-      raise "Only support sequence, not: '#{type}'" unless type == :sequence
-      render.output(type_to_file)
+      raise "Only support #{FLOW_RENDERERS.keys}, not: '#{type}'" unless FLOW_RENDERERS.has_key?(type)
+      render(FLOW_RENDERERS[type]).output(type_to_file)
     end
 
-    def render
-      renderer = SequenceRenderer.new(@name)
+    def render(renderer_class = SequenceRenderer)
+      renderer = renderer_class.new(@name)
       commands.each do |type, from, to, label|
         if type == :call
           renderer.render_edge(from, to, {label: label})

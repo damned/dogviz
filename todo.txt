@@ -8,6 +8,9 @@
   [DONE] indent text output 
   - alt combined fragments
   - allow unbalanced combined fragments (explicit start + end, not just by block)
+* plantuml flow output
+  [DONE] text output
+  - direct image output if plantuml installed
 * output generated flow file
 * sort out HACK (search for commit in git log) around flow detail used in make_connections
 * clean up init options + render attributes - not v clear / overlapping
@@ -23,7 +26,6 @@
   - maybe makes more seamless when collapsing/hiding for different views?
 * add sankey diagrams?
 * other renderer integrations:
-  - plantuml?
   - cyctoscape?
 * switch to proper graph lib under covers - this is just a builder + view wrapper... https://github.com/monora/rgl?
 * #repeat(count) on containers to give multiple instances, by default expanded (to show each instance)
