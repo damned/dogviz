@@ -21,11 +21,11 @@ module Dogviz
       elsif from.is_a?(Process)
         receiver_label = process_end_label(receiver_label)
       end
-      add_line "#{sender_label} -> #{receiver_label}: #{detail}"
+      add_line "#{escape sender_label} -> #{escape receiver_label}: #{escape detail}"
     end
 
     def start_combination(operator, guard)
-      add_line "#{operator} #{guard}"
+      add_line "#{operator} #{escape guard}"
       @indents += 1
     end
     
@@ -35,7 +35,7 @@ module Dogviz
     end
 
     def note(from, where, what)
-      add_line "note #{where} of #{from.name}"
+      add_line "note #{where} of #{escape from.name}"
       @indents += 1
       add_line what
       @indents -= 1
@@ -53,7 +53,7 @@ module Dogviz
     end
 
     def add_title(title)
-      add_line "title #{title}"
+      add_line "title #{escape title}"
     end
 
     def process_start_label(receiver_label)
@@ -70,5 +70,14 @@ module Dogviz
                 "  #{process_description}",
                 'end note'].join("\n")
     end
+
+    def escape(s)
+      if /\s/.match(s) && (not /\n/.match(s))
+        "\"#{s}\""
+      else
+         s
+      end
+    end
+    
   end
 end

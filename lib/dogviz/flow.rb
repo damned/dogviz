@@ -129,5 +129,6 @@ module Dogviz
       return it.processor if it.is_a?(Process)
       it
     end
+
   end
 end

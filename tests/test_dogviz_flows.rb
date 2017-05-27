@@ -34,11 +34,11 @@ module Tests
       definition = sequence_definition(order)
 
       assert_equal [
-                    'eater -> server: gimme burger',
-                    'server -> cook: passes order',
+                    'eater -> server: "gimme burger"',
+                    'server -> cook: "passes order"',
                     'cook -> server:',
-                    'server -> eater: here ya go',
-                    'eater -> server: gimme dessert'
+                    'server -> eater: "here ya go"',
+                    'eater -> server: "gimme dessert"'
                   ].join("\n"), definition
     end
 
@@ -74,9 +74,9 @@ module Tests
       definition = sequence_definition(order)
 
       assert_equal [
-                     'opt if hungry',
-                     '  eater -> server: gimme burger',
-                     '  server -> eater: here you go',
+                     'opt "if hungry"',
+                     '  eater -> server: "gimme burger"',
+                     '  server -> eater: "here you go"',
                      'end'
                    ].join("\n"), definition
     end
@@ -98,10 +98,10 @@ module Tests
       definition = sequence_definition(order)
 
       assert_equal [
-                     'eater -> server: make order 1',
-                     'server -> eater: deliver order 1',
-                     'eater -> server: make order 2',
-                     'server -> eater: deliver order 2',
+                     'eater -> server: "make order 1"',
+                     'server -> eater: "deliver order 1"',
+                     'eater -> server: "make order 2"',
+                     'server -> eater: "deliver order 2"'
                    ].join("\n"), definition
     end
     
@@ -120,7 +120,7 @@ module Tests
       definition = sequence_definition(order)
 
       assert_equal [
-                     'eater -> server: gimme burger',
+                     'eater -> server: "gimme burger"',
                      'note right of server',
                      '  a note',
                      'end note',
@@ -140,8 +140,8 @@ module Tests
 
       assert_equal [
                      'title order',
-                     'eater -> server: gimme burger',
-                     'server -> cook: passes order',
+                     'eater -> server: "gimme burger"',
+                     'server -> cook: "passes order"',
                      'cook -> server:',
                      'server -> eater:',
                    ].join("\n"), definition
