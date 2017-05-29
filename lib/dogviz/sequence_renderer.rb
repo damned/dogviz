@@ -73,7 +73,7 @@ module Dogviz
     end
 
     def escape(s)
-      if /\s/.match(s) && (not /\n/.match(s))
+      if ((/\s/).match(s) && (not (/\n/).match(s)))
         "\"#{s}\""
       else
          s
@@ -95,5 +95,13 @@ module Dogviz
       @rendered_class = PlantUmlRenderedSequence
     end    
   end
+
+  class PngSequenceRenderer < SequenceRenderer
+    def initialize title
+      super title
+      @rendered_class = PngRenderedSequence
+    end    
+  end
+  
   
 end

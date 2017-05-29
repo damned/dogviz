@@ -9,6 +9,10 @@ module Tests
       "/tmp/dogviz_flow_test.#{ext}"
     end
 
+    def delete_outfile(ext)
+      FileUtils.rm_f outfile(ext)
+    end
+
     def read_outfile(ext)
       File.read outfile(ext)
     end
@@ -125,6 +129,35 @@ module Tests
                      'eater -> server: gimme',
                      '@enduml'
                    ].join("\n"), definition
+    end
+    
+    class MockExecutor
+      def execute(cmd)
+        @cmd = cmd
+      end
+      attr_reader :cmd
+    end
+    
+
+    def test_flow_png_image_output_via_plantuml
+      create_takeaway
+
+      order = sys.flow('order').involves sys.server
+
+      sys.server.receives burger: 'gimme'
+
+      order.from(sys.eater) {
+        sys.server.burger
+      }
+
+      plantuml_definition_file = outfile('seq.plantuml')
+      FileUtils.rm_f plantuml_definition_file
+      mock_executor = MockExecutor.new
+      order.executor = mock_executor
+      order.output png: outfile('seq.png')
+      
+      assert_equal true, File.exist?(plantuml_definition_file)
+      assert_equal 'plantuml -tpng ' + plantuml_definition_file, mock_executor.cmd
     end
     
     def test_nested_flow_with_note_on_right

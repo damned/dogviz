@@ -6,10 +6,12 @@ module Dogviz
   class Flow
     FLOW_RENDERERS = {
       sequence: WebSequenceDiagramsSequenceRenderer,
-      plantuml: PlantUmlSequenceRenderer
+      plantuml: PlantUmlSequenceRenderer,
+      png: PngSequenceRenderer
     }
 
     attr_reader :sys
+    attr_accessor :executor
 
     def initialize(sys, name)
       @sys = sys
@@ -17,6 +19,7 @@ module Dogviz
       @commands = []
       @actors = []
       @caller_stack = []
+      @executor = nil
     end
 
     def make_connections
@@ -103,7 +106,7 @@ module Dogviz
     def output(type_to_file)
       type = type_to_file.keys.first
       raise "Only support #{FLOW_RENDERERS.keys}, not: '#{type}'" unless FLOW_RENDERERS.has_key?(type)
-      render(FLOW_RENDERERS[type]).output(type_to_file)
+      render(FLOW_RENDERERS[type]).output(type_to_file, executor)
     end
 
     def render(renderer_class = SequenceRenderer)
