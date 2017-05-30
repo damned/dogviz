@@ -209,9 +209,9 @@ module Tests
 
       assert_equal([
                        'eater -> server: orders',
-                       'server -> +cook: creates order',
+                       'server -> +cook: "creates order"',
                        'note right of cook',
-                       '  cooks burger',
+                       '  "cooks burger"',
                        'end note',
                        'cook -> -server: burger',
                        'server -> eater: burger',

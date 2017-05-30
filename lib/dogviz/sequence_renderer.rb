@@ -16,13 +16,16 @@ module Dogviz
       detail = options[:label]
       receiver_label = other.name
       sender_label = from.name
+      annotations = nil
       if other.is_a?(Process)
-        detail = process_annotations(detail, sender_label, receiver_label, other.description)
+        annotations = extract_annotations(detail, sender_label, receiver_label, other.description)
         receiver_label = process_start_label(receiver_label)
       elsif from.is_a?(Process)
         receiver_label = process_end_label(receiver_label)
       end
-      add_line "#{escape sender_label} -> #{escape receiver_label}: #{escape detail}"
+      line = "#{escape sender_label} -> #{escape receiver_label}: #{escape detail}"
+      line = [ line, annotations ].join("\n") unless annotations.nil?
+      add_line line
     end
 
     def start_combination(operator, guard)
@@ -65,15 +68,14 @@ module Dogviz
       "-#{receiver_label}"
     end
 
-    def process_annotations(detail, sender, receiver, process_description)
-      detail = [detail,
-                "note right of #{receiver}",
-                "  #{process_description}",
-                'end note'].join("\n")
+    def extract_annotations(detail, sender, receiver, process_description)
+      [ "note right of #{escape receiver}",
+        "  #{escape process_description}",
+        'end note' ].join("\n")
     end
 
     def escape(s)
-      if ((/\s/).match(s) && (not (/\n/).match(s)))
+      if (/\s/).match(s)
         "\"#{s}\""
       else
          s
