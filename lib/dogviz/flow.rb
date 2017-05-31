@@ -60,6 +60,10 @@ module Dogviz
       block.call
       commands << [:end, nil, nil, nil]
     end
+
+    def divider(text)
+      commands << [:divider, nil, nil, text]
+    end
     
     alias :opt :optional
 
@@ -118,6 +122,8 @@ module Dogviz
           renderer.end_combination
         elsif type == :note
           renderer.note(from, to, label)
+        elsif type == :divider
+          renderer.divider(label)
         else
           renderer.start_combination(type, label)
         end

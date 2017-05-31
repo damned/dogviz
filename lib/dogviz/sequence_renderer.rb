@@ -46,6 +46,10 @@ module Dogviz
       add_line "end note"
     end
 
+    def divider(text)
+      #nop
+    end
+
     def rendered
       @rendered_class.new lines
     end
@@ -95,10 +99,14 @@ module Dogviz
     def initialize title
       super title
       @rendered_class = PlantUmlRenderedSequence
-    end    
+    end
+
+    def divider(text)
+      add_line "== #{text} =="
+    end
   end
 
-  class PngSequenceRenderer < SequenceRenderer
+  class PngSequenceRenderer < PlantUmlSequenceRenderer
     def initialize title
       super title
       @rendered_class = PngRenderedSequence

@@ -130,6 +130,28 @@ module Tests
                      '@enduml'
                    ].join("\n"), definition
     end
+
+    def test_plantuml_dividers
+      create_takeaway
+
+      order = sys.flow('order')
+
+      sys.server.receives burger: 'gimme'
+
+      order.from(sys.eater) {
+        order.divider('bob')
+      }
+
+      definition = order.output plantuml: outfile('seq.plantuml')
+
+      assert_equal [
+                     '@startuml',
+                     'title order',
+                     '== bob ==',
+                     '@enduml'
+                   ].join("\n"), definition
+    end
+    
     
     class MockExecutor
       def execute(cmd)
