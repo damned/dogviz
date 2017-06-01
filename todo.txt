@@ -10,8 +10,11 @@
   - allow unbalanced combined fragments (explicit start + end, not just by block)
 * plantuml flow output
   [DONE] text output
-  - direct image output if plantuml installed
+  [DONE] direct image output if plantuml installed
+  [DONE] sort double quotes
+  [ ] allow multiline
 * output generated flow file
+* deprecate old flows
 * sort out HACK (search for commit in git log) around flow detail used in make_connections
 * clean up init options + render attributes - not v clear / overlapping
 * make style attributes well defined -> less leaky + explicit graphviz passthroughs
@@ -43,10 +46,6 @@
       - color -> edge + font color
       - stroke -> edge size and font size
 * render to d3 force directed graph
-* plantuml flow render
-  - can include images
-  - has more control
-  - can render locally
 * "rollup edges": where many edges from a node, rollup those to certain destination (e.g. from 'website' to all 
    in '3rd party' container) so that not so crowded around source (would add extra view node nearer target)
 * "via": app -> service, via: load_balancer... then can omit load_balancer and get direct app -> service connection 

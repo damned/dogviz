@@ -38,11 +38,11 @@ module Tests
       definition = sequence_definition(order)
 
       assert_equal [
-                    'eater -> server: "gimme burger"',
-                    'server -> cook: "passes order"',
+                    'eater -> server: gimme burger',
+                    'server -> cook: passes order',
                     'cook -> server:',
-                    'server -> eater: "here ya go"',
-                    'eater -> server: "gimme dessert"'
+                    'server -> eater: here ya go',
+                    'eater -> server: gimme dessert'
                   ].join("\n"), definition
     end
 
@@ -79,8 +79,8 @@ module Tests
 
       assert_equal [
                      'opt "if hungry"',
-                     '  eater -> server: "gimme burger"',
-                     '  server -> eater: "here you go"',
+                     '  eater -> server: gimme burger',
+                     '  server -> eater: here you go',
                      'end'
                    ].join("\n"), definition
     end
@@ -102,17 +102,17 @@ module Tests
       definition = sequence_definition(order)
 
       assert_equal [
-                     'eater -> server: "make order 1"',
-                     'server -> eater: "deliver order 1"',
-                     'eater -> server: "make order 2"',
-                     'server -> eater: "deliver order 2"'
+                     'eater -> server: make order 1',
+                     'server -> eater: deliver order 1',
+                     'eater -> server: make order 2',
+                     'server -> eater: deliver order 2'
                    ].join("\n"), definition
     end
 
     def test_plantuml_text_output
       create_takeaway
 
-      order = sys.flow('order').involves sys.server
+      order = sys.flow('the order').involves sys.server
 
       sys.server.receives burger: 'gimme'
 
@@ -125,7 +125,7 @@ module Tests
 
       assert_equal [
                      '@startuml',
-                     'title order',
+                     'title the order',
                      'eater -> server: gimme',
                      '@enduml'
                    ].join("\n"), definition
@@ -197,7 +197,7 @@ module Tests
       definition = sequence_definition(order)
 
       assert_equal [
-                     'eater -> server: "gimme burger"',
+                     'eater -> server: gimme burger',
                      'note right of server',
                      '  a note',
                      'end note',
@@ -217,8 +217,8 @@ module Tests
 
       assert_equal [
                      'title order',
-                     'eater -> server: "gimme burger"',
-                     'server -> cook: "passes order"',
+                     'eater -> server: gimme burger',
+                     'server -> cook: passes order',
                      'cook -> server:',
                      'server -> eater:',
                    ].join("\n"), definition
@@ -231,7 +231,7 @@ module Tests
 
       assert_equal([
                        'eater -> server: orders',
-                       'server -> +cook: "creates order"',
+                       'server -> +cook: creates order',
                        'note right of cook',
                        '  "cooks burger"',
                        'end note',

@@ -23,7 +23,7 @@ module Dogviz
       elsif from.is_a?(Process)
         receiver_label = process_end_label(receiver_label)
       end
-      line = "#{escape sender_label} -> #{escape receiver_label}: #{escape detail}"
+      line = "#{escape sender_label} -> #{escape receiver_label}: #{detail}"
       line = [ line, annotations ].join("\n") unless annotations.nil?
       add_line line
     end
@@ -61,7 +61,7 @@ module Dogviz
     end
 
     def add_title(title)
-      add_line "title #{escape title}"
+      add_line "title #{title}"
     end
 
     def process_start_label(receiver_label)
