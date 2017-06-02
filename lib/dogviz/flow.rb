@@ -51,10 +51,15 @@ module Dogviz
     end
 
     def add_note(from, where, what)
-      # yukk next lets move to command classes, e.g. OptCommand, NoteCommand, CallCommand etc.
+      # TODO yukk next lets move to command classes, e.g. OptCommand, NoteCommand, CallCommand etc.
       commands << [:note, from, where, what]
     end
 
+    def process(process)
+      commands.last[2] = process # TODO yukk again - last[2] is "other""
+      @caller_stack[-1] = process
+    end
+    
     def optional(text, &block)
       commands << [:opt, nil, nil, text]
       block.call
@@ -71,6 +76,10 @@ module Dogviz
       commands << [:call, from, to, label]
     end
 
+    def add_return(from, to, label)
+      commands << [:return, from, to, label]
+    end
+
     def next_call(to, label)
       add_call @caller_stack.last, to, label
       @caller_stack << to
@@ -78,7 +87,7 @@ module Dogviz
 
     def end_call(label)
       current_actor = @caller_stack.pop
-      add_call(current_actor, @caller_stack.last, label) unless label.nil?
+      add_return(current_actor, @caller_stack.last, label) unless label.nil?
     end
 
     def flows(*steps)
@@ -114,10 +123,12 @@ module Dogviz
     end
 
     def render(renderer_class = SequenceRenderer)
-      renderer = renderer_class.new(@name)
+      renderer = renderer_class.new(@name, sys)
       commands.each do |type, from, to, label|
         if type == :call
           renderer.render_edge(from, to, {label: label})
+        elsif type == :return
+          renderer.render_return_edge(from, to, {label: label})
         elsif type == :end
           renderer.end_combination
         elsif type == :note

@@ -3,7 +3,9 @@ require_relative 'process'
 module Dogviz
   module Flowable
     def does(action)
-      Process.new(self, action)
+      process = Process.new(self, action)
+      @flow.process(process) unless @flow.nil?
+      process
     end
     
     def receives(requests, &block)

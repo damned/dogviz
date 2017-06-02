@@ -204,6 +204,43 @@ module Tests
                    ].join("\n"), definition
     end
 
+    def test_nested_flow_generates_sequence_with_process_activation
+      create_takeaway
+
+      grill = sys.thing 'grill'
+      order = sys.flow('order').involves sys.server, sys.cook, grill
+
+      sys.server.receives burger: { 'gimme burger' => 'here ya go' }, 
+                          dessert: 'gimme dessert'
+      sys.cook.receives order: { 'passes order' => 'burger' }
+      grill.receives turn_on: { 'turn on' => 'on' }
+
+      order.from(sys.eater) {
+        sys.server.burger {
+          sys.cook.order {
+            sys.cook.does 'cooks burger' # or maybe should be tied in at #receives definition?
+            grill.turn_on
+          }
+        }
+        sys.server.dessert
+      }
+
+      definition = sequence_definition(order)
+
+      assert_equal [
+                    'eater -> server: gimme burger',
+                    'server -> +cook: passes order',
+                    'note right of cook',
+                    '  "cooks burger"',
+                    'end note',
+                    'cook -> grill: turn on',
+                    'grill -> cook: on',
+                    'cook -> -server: burger',
+                    'server -> eater: here ya go',
+                    'eater -> server: gimme dessert'
+                  ].join("\n"), definition
+    end
+
     def test_flow_generates_precise_sequence_with_deprecated_flows
       create_takeaway
       sys.suppress_warnings!
@@ -222,22 +259,6 @@ module Tests
                      'cook -> server:',
                      'server -> eater:',
                    ].join("\n"), definition
-    end
-
-    def test_flow_generates_precise_sequence_with_action_with_deprecated_flows
-      order = create_food_flow_with_deprecated_flows
-
-      definition = sequence_definition order
-
-      assert_equal([
-                       'eater -> server: orders',
-                       'server -> +cook: creates order',
-                       'note right of cook',
-                       '  "cooks burger"',
-                       'end note',
-                       'cook -> -server: burger',
-                       'server -> eater: burger',
-                   ].join("\n"), definition)
     end
 
     def test_flow_can_be_used_to_make_connections_in_dog_with_deprecated_flows

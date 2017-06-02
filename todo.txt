@@ -13,9 +13,15 @@
   [DONE] direct image output if plantuml installed
   [DONE] sort double quotes
   [ ] allow multiline
-* output generated flow file
-* deprecate old flows
+* [DONE] output generated flow file
+* check out inkscape for tweak svg after the fact
+  - how easily manipulable is graphviz output?
+  - can we post-process svg to create associations etc that make it easier to tweak?
+  - check out alternative svg editors: adobe illustrator, some other?
+* remove old flows
+* change flow "commands" array of arrays into array of proper Command objects
 * sort out HACK (search for commit in git log) around flow detail used in make_connections
+  - enable #does for nested flows
 * clean up init options + render attributes - not v clear / overlapping
 * make style attributes well defined -> less leaky + explicit graphviz passthroughs
 * separate style from domain-specific elements (can use same view-manipulation selection mechanisms)
@@ -59,3 +65,4 @@
    - allow nodes to assign summary fields? then could be set to 'summary'
 * sort out fore vs back color
 * check out structurizr.com
+  

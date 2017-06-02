@@ -35,7 +35,7 @@ module Dogviz
     def output(*args)
       render
       out = graph.output(*args)
-      @messages << "Created output: #{args.join ' '}" unless suppress_messages?
+      output_message "Created output: #{args.join ' '}"
       out
     end
 
@@ -108,6 +108,10 @@ module Dogviz
     def suppress_messages!
       @suppress_messages = true
       self
+    end
+
+    def output_message(message)
+      @messages << message
     end
 
     private
