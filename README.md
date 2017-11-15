@@ -152,3 +152,7 @@ sys = WebsiteSystem.new 'website'
 box = sys.box('website box')
 box.process('nginx').calls(box.process('app'))
 ```
+
+### Next
+
+Some refactoring, separate styling from domain (CSS-like probably), split into graph-description, manipulation and layout sub-gems, maybe re-use proper graph lib.
