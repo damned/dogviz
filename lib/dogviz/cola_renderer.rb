@@ -5,22 +5,23 @@ module Dogviz
     def initialize(title)
       @title = title
       @nodes = []
-      @edges = []
+      @links = []
+      @groups = []
     end
 
     def graph
-      ColaGraphHash.new(nodes: nodes, edges: edges)
+      ColaGraphHash.new(nodes: nodes, links: links, groups: groups)
     end
 
-    # def render_node(parent, id, attributes)
-    #   @nodes << {id: id, label: id}
-    #   @edges << {
-    #       id: "#{parent.id}->#{id}",
-    #       type: 'containment',
-    #       source: parent.id,
-    #       target: id
-    #   } unless parent.root?
-    # end
+    def render_node(parent, id, attributes)
+      @nodes << {name: id, width: 60, height: 40}
+      @links << {
+          id: "#{parent.id}->#{id}",
+          type: 'containment',
+          source: parent.id,
+          target: id
+      } unless parent.root?
+    end
 
     # def render_edge(from, to, options)
     #   @edges << {
@@ -47,6 +48,6 @@ module Dogviz
     #   id
     # end
 
-    attr_reader :nodes, :edges
+    attr_reader :nodes, :links, :groups
   end
 end

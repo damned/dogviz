@@ -42,12 +42,12 @@ class TestDogvizColaJsRendering < Test::Unit::TestCase
 	]
 }
 
-  def xtest_renders_single_node__as_sigma_js_graph_definition
+  def test_renders_single_node__as_cola_js_graph_definition
     sys.thing('a')
 
-    graph = sys.render(:sigma)
+    graph = sys.render(:cola)
 
-    assert_equal({nodes: [ { id: 'a', label: 'a' }], edges: []}, graph)
+    assert_equal({nodes: [ { name: 'a', width: 60, height: 40 }], links: [], groups: []}, graph)
   end
 
   def xtest_includes_containers_with_appropriate_types
