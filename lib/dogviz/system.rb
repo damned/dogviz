@@ -62,8 +62,10 @@ module Dogviz
         GraphvizRenderer.new @title, render_hints
       elsif type == :sigma
         SigmaRenderer.new @title
+      elsif type == :cola
+        ColaRenderer.new @title
       else
-        raise "dunno bout that '#{type}', only know :graphviz or :sigma"
+        raise "dunno bout that '#{type}', only know :graphviz, :sigma or :cola"
       end
 
     end
