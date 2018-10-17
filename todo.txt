@@ -65,4 +65,4 @@
    - allow nodes to assign summary fields? then could be set to 'summary'
 * sort out fore vs back color
 * check out structurizr.com
-  
+* dogfood example is a bit rubbish for opener - too dry for first example  
