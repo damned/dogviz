@@ -12,7 +12,7 @@ module Dogviz
       SigmaGraphHash.new(nodes: nodes, edges: edges)
     end
 
-    def render_node(parent, id, attributes)
+    def render_node(parent, id, attributes, node)
       @nodes << {id: id, label: id}
       @edges << {
           id: "#{parent.id}->#{id}",

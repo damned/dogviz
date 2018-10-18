@@ -6,8 +6,9 @@ module Tests
     include Dogviz
 
     class StubRenderer
-      attr_reader :last_node_attributes, :last_edge_options
-      def render_node(parent, id, attributes)
+      attr_reader :last_node_attributes, :last_edge_options, :last_node
+      def render_node(parent, id, attributes, node)
+        @last_node = node
         @last_node_attributes = attributes
       end
       def render_edge(from, other, options)
@@ -47,7 +48,6 @@ module Tests
 
       assert_equal 'funky-font', renderer.last_node_attributes[:fontname]
     end
-
     def test_thing_edges_rendered_with_inherited_fontname
       parent.render_options = {fontname: 'crazy-font'}
 
@@ -59,5 +59,13 @@ module Tests
       assert_equal 'crazy-font', renderer.last_edge_options[:fontname]
     end
 
+    def test_thing_passed_to_renderer
+      parent.render_options = {}
+      thing = Thing.new parent, 'thing'
+
+      thing.render renderer
+
+      assert_equal thing, renderer.last_node
+    end
   end
 end

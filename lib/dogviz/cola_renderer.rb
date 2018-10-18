@@ -13,14 +13,14 @@ module Dogviz
       ColaGraphHash.new(nodes: nodes, links: links, groups: groups)
     end
 
-    def render_node(parent, id, attributes)
-      @nodes << {name: id, width: 60, height: 40}
-      @links << {
-          id: "#{parent.id}->#{id}",
-          type: 'containment',
-          source: parent.id,
-          target: id
-      } unless parent.root?
+    def render_node(parent, id, attributes, node)
+      @nodes << {name: node.name, width: 60, height: 40}
+      # @links << {
+      #     id: "#{parent.id}->#{id}",
+      #     type: 'containment',
+      #     source: parent.id,
+      #     target: id
+      # } unless parent.root?
     end
 
     # def render_edge(from, to, options)
@@ -32,15 +32,9 @@ module Dogviz
     #   }
     # end
 
-    # def render_subgraph(parent, id, attributes)
-    #   @nodes << {id: container_label(id), type: 'container', label: container_label(id)}
-    #   @edges << {
-    #       id: "#{container_label parent.id}->#{container_label id}",
-    #       type: 'containment',
-    #       source: container_label(parent.id),
-    #       target: container_label(id)
-    #   } unless parent.root?
-    # end
+    def render_subgraph(parent, id, attributes)
+      @groups << {leaves: [0]}
+    end
 
     # private
 

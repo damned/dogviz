@@ -27,7 +27,7 @@ module Dogviz
       edge
     end
 
-    def render_node(parent, id, attributes)
+    def render_node(parent, id, attributes, node)
       clean_node_attributes attributes
       default_attributes = {:shape => 'box', :style => ''}
       merged_attributes = default_attributes.merge(attributes)

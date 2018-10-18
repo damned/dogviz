@@ -59,7 +59,7 @@ module Dogviz
     private
 
     def do_render_node(renderer)
-      renderer.render_node(parent, id, @render_options.merge(@attributes))
+      renderer.render_node(parent, id, @render_options.merge(@attributes), self)
     end
 
     def setup_render_edge(other, options)

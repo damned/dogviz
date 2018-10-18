@@ -66,7 +66,7 @@ module Dogviz
 
     def do_render_node(renderer)
       @render_type = :node
-      renderer.render_node(parent, id, render_options.merge(@attributes))
+      renderer.render_node(parent, id, render_options.merge(@attributes), self)
     end
 
     def init_rollup(options)

@@ -50,24 +50,19 @@ class TestDogvizColaJsRendering < Test::Unit::TestCase
     assert_equal({nodes: [ { name: 'a', width: 60, height: 40 }], links: [], groups: []}, graph)
   end
 
-  def xtest_includes_containers_with_appropriate_types
+  def test_includes_containers_as_cola_groups
     sys.container('c').thing('a')
 
-    graph = sys.render(:sigma)
+    graph = sys.render(:cola)
 
     assert_equal({
                      nodes: [
-                         { id: 'c', type: 'container', label: 'c' },
-                         { id: 'c_a', label: 'c_a' }
+                         { name: 'a', width: 60, height: 40 }
                      ],
-                     edges: [
-                         {
-                             id: 'c->c_a',
-                             type: 'containment',
-                             source: 'c',
-                             target: 'c_a'
-                         }
-                     ]
+                     groups: [
+                       leaves: [ 0 ]
+                     ],
+                     links: []                        
                  }, graph)
   end
 
