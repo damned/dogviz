@@ -17,13 +17,13 @@ Gem::Specification.new do |spec|
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "bundler", "~> 1.10"
-  spec.add_development_dependency "rake", "~> 12.0"
+  spec.add_development_dependency "bundler", "~> 2.3.23"
+  spec.add_development_dependency "rake", "~> 13.0.6"
   spec.add_development_dependency 'simplecov', '~> 0'
   spec.add_development_dependency 'colorize', '~> 0'
   spec.add_development_dependency 'nokogiri', '~> 1.6'
   spec.add_development_dependency 'test-unit'
 
   spec.add_dependency 'ruby-graphviz', '~> 1'
-  spec.add_dependency 'json', '~> 2.1.0'
+  spec.add_dependency 'json', '~> 2.3.0'
 end
