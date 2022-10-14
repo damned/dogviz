@@ -1,7 +1,33 @@
 # dogviz
 A domain object graph (**DOG**) visualisation built on [ruby-graphviz](https://github.com/glejeune/Ruby-Graphviz) and hence [Graphviz](http://www.graphviz.org/)
 
-## Usage
+## Run in docker
+
+Ensure docker is installed.
+
+Clone this repo then:
+
+
+```
+./shell
+```
+
+This will give you a shell within the ruby container with this dir mounted.  Next you can complete installation with:
+
+```
+bundle install
+apt update && apt install graphviz
+rake test
+ruby examples/dogfood.rb
+```
+
+## Run in direct in your machine's ruby
+
+*NB This is the way i used to run this but personally i don't recommend it as the mechanisms for managing multiple
+ruby versions - and the same would go for python etc. - are just not as isolated as running in docker, are more complex,
+less reproducible and can lead to hard to unpick or non-obvious issues. That said, knock yourself out :)*
+
+Ensure you have a working ruby environment.
 
 Clone this repo then:
 
@@ -14,7 +40,7 @@ ruby examples/dogfood.rb
 
 Here is the diagram rendered by running the [dogfood example](examples/dogfood.rb)
 
-![generated graph from examples/dogfood.rb](/examples/dogviz-generated.jpg "Generated diagram")
+![generated graph from examples/dogfood.rb](examples/dogviz-generated.jpg "Generated diagram")
 
 Use the simple DSL to build your domain graph of *things* which can be in *containers*, which in turn can be nested.
 
@@ -79,7 +105,7 @@ You can **rollup!** *containers* before rendering so that a single **DOG** can b
 The following output from above example shows how diagram can be simplified by *rolling up* the nested container.
 Note that pointers to/from contained things are handled gracefully ([i think](https://github.com/damned/dogviz/blob/master/tests/test_dogviz_graphviz_rendering.rb#L97) :/).
 
-![generated rolled up graph from examples/dogfood.rb](/examples/dogviz-rolled-up-generated.jpg "Generated rolled up diagram")
+![generated rolled up graph from examples/dogfood.rb](examples/dogviz-rolled-up-generated.jpg "Generated rolled up diagram")
 
 ## Other Features
 
